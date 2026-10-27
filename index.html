@@ -1,0 +1,3726 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<title>ПУЛЬС ПУСТОТЫ — карточный сон</title>
+<style>
+  :root{
+    --void:#040307;
+    --ink:#090810;
+    --ivory:#efe6d2;
+    --paper:#dfd2b8;
+    --acid:#c8ff68;
+    --acid-dim:#89b447;
+    --mold:#9dff9f;
+    --hot:#ff3d8f;
+    --cyan:#63f6ff;
+    --gold:#f1c66e;
+    --rust:#ff674f;
+    --violet:#a88bff;
+    --line:rgba(239,230,210,.17);
+  }
+  *{box-sizing:border-box}
+  html,body{
+    height:100%;margin:0;background:var(--void);overflow:hidden;
+    color:var(--ivory);
+    font-family:"Courier New",Courier,monospace;
+    -webkit-font-smoothing:antialiased;
+  }
+  button{font:inherit;color:inherit}
+  button:focus-visible{outline:2px solid var(--cyan);outline-offset:3px}
+  #stage{
+    position:relative;
+    width:min(100vw,177.7778vh);
+    height:min(100vh,56.25vw);
+    margin:auto;
+    overflow:hidden;
+    background:#06050a;
+    isolation:isolate;
+    container-type:size;
+    box-shadow:0 0 140px #000 inset, 0 0 0 1px #08060d;
+  }
+  @media (max-aspect-ratio:16/9){
+    body{display:grid;place-items:center}
+  }
+  #scene{position:absolute;inset:0;width:100%;height:100%;display:block;z-index:0}
+  .vignette{
+    position:absolute;inset:0;z-index:2;pointer-events:none;
+    background:
+      radial-gradient(ellipse at 50% 42%,transparent 32%,rgba(3,2,6,.38) 72%,rgba(3,2,6,.92) 100%),
+      linear-gradient(180deg,rgba(4,3,8,.72),transparent 16%,transparent 72%,rgba(4,3,8,.9));
+    mix-blend-mode:multiply;
+  }
+  .scanlines{
+    position:absolute;inset:-20% 0;z-index:3;pointer-events:none;opacity:.1;
+    background:repeating-linear-gradient(180deg,transparent 0 3px,rgba(255,255,255,.15) 4px,transparent 5px 8px);
+    animation:scan 13s linear infinite;
+  }
+  @keyframes scan{from{transform:translateY(-8%)}to{transform:translateY(8%)}}
+  .screen-grain{
+    position:absolute;inset:0;z-index:4;pointer-events:none;opacity:.055;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.8'/%3E%3C/svg%3E");
+    mix-blend-mode:soft-light;
+  }
+  .hidden{display:none!important}
+
+  /* ---------- TOP BAR ---------- */
+  .topbar{
+    position:absolute;z-index:8;top:0;left:0;right:0;height:7.1cqh;
+    padding:0 2.3cqw;
+    display:flex;align-items:center;justify-content:space-between;gap:2cqw;
+    border-bottom:1px solid rgba(239,230,210,.11);
+    background:linear-gradient(180deg,rgba(4,3,8,.88),rgba(4,3,8,.06));
+    backdrop-filter:blur(3px);
+  }
+  .brand{
+    display:flex;align-items:center;gap:1cqw;
+    font-family:Georgia,"Times New Roman",serif;
+    font-size:1.3cqw;letter-spacing:.12em;white-space:nowrap;
+  }
+  .brand em{color:var(--acid);font-style:normal}
+  .brand-eye{
+    width:2.1cqw;height:1.28cqw;border:1px solid var(--acid);border-radius:50%;
+    position:relative;display:inline-block;box-shadow:0 0 14px rgba(200,255,104,.45);
+    animation:blinkEye 6s infinite;
+  }
+  .brand-eye::after{
+    content:"";position:absolute;width:.5cqw;height:.5cqw;background:var(--hot);border-radius:50%;
+    left:50%;top:50%;transform:translate(-50%,-50%);box-shadow:0 0 8px var(--hot);
+  }
+  @keyframes blinkEye{0%,44%,48%,100%{transform:scaleY(1)}46%{transform:scaleY(.08)}}
+  .round-chip{
+    display:flex;align-items:baseline;gap:.45cqw;letter-spacing:.18em;
+    border:1px solid var(--line);padding:.65cqh 1.1cqw;
+    background:rgba(8,6,13,.65);
+    font-size:.82cqw;color:#a69e91;
+    clip-path:polygon(8px 0,100% 0,calc(100% - 8px) 100%,0 100%);
+  }
+  .round-chip span:first-child{color:var(--ivory);font-size:1.2cqw}
+  .round-chip i{color:var(--hot);font-style:normal}
+  .top-actions{display:flex;gap:.55cqw;align-items:center}
+  .mini{
+    border:1px solid rgba(239,230,210,.2);background:rgba(9,7,14,.75);
+    color:#bdb4a5;padding:.6cqh .8cqw;cursor:pointer;
+    font-size:.67cqw;letter-spacing:.08em;transition:.2s;white-space:nowrap;
+  }
+  .mini:hover{color:var(--acid);border-color:var(--acid);background:rgba(200,255,104,.08)}
+  .mini.square{width:2.1cqw;height:2.1cqw;padding:0;display:grid;place-items:center;font-size:.95cqw}
+
+  /* ---------- OPPONENT HUD ---------- */
+  .bot-hud{
+    position:absolute;z-index:6;top:9.2cqh;width:20.2cqw;
+    padding:1.1cqh 1.15cqw 1cqh;
+    border:1px solid color-mix(in srgb,var(--botColor) 32%,transparent);
+    background:
+      linear-gradient(135deg,color-mix(in srgb,var(--botColor) 8%,transparent),rgba(7,5,11,.82) 45%,rgba(7,5,11,.88)),
+      repeating-linear-gradient(90deg,rgba(255,255,255,.025) 0 1px,transparent 1px 7px);
+    box-shadow:0 18px 46px rgba(0,0,0,.34), inset 0 0 34px rgba(0,0,0,.2);
+    clip-path:polygon(0 0,calc(100% - 1.25cqw) 0,100% 1.25cqw,100% 100%,1.1cqw 100%,0 calc(100% - 1.1cqw));
+    transition:opacity .35s, filter .35s;
+  }
+  .bot-hud::before{
+    content:"";position:absolute;left:0;top:0;bottom:0;width:2px;background:var(--botColor);
+    box-shadow:0 0 18px var(--botColor);
+  }
+  .bot-hud.mold{left:2.3cqw;--botColor:var(--mold)}
+  .bot-hud.lady{right:2.3cqw;--botColor:var(--hot)}
+  .bot-hud.dead{opacity:.34;filter:grayscale(1)}
+  .bot-hud.turn{border-color:color-mix(in srgb,var(--botColor) 80%,white);box-shadow:0 0 34px color-mix(in srgb,var(--botColor) 25%,transparent)}
+  .bot-head{display:flex;align-items:center;gap:.6cqw}
+  .bot-index{
+    font-size:.62cqw;border:1px solid color-mix(in srgb,var(--botColor) 48%,transparent);
+    color:var(--botColor);padding:.2cqh .3cqw;
+  }
+  .bot-head h2{
+    margin:0;font-family:Georgia,"Times New Roman",serif;font-size:1.1cqw;
+    letter-spacing:.1em;font-weight:400;color:var(--ivory);
+  }
+  .bot-sub{margin:.5cqh 0 .8cqh;color:#8b8379;font-size:.68cqw;line-height:1.4;letter-spacing:.03em}
+  .meter{height:.38cqh;background:rgba(255,255,255,.08);overflow:hidden;position:relative;margin-bottom:.62cqh}
+  .meter span{display:block;height:100%;width:100%;background:var(--botColor);box-shadow:0 0 10px var(--botColor);transition:width .5s cubic-bezier(.2,.8,.2,1);position:relative}
+  .meter span::after{content:"";position:absolute;inset:0;background:repeating-linear-gradient(90deg,transparent 0 9px,rgba(0,0,0,.55) 9px 10px)}
+  .bot-foot{display:flex;justify-content:space-between;align-items:center;color:#9a9288;font-size:.68cqw;letter-spacing:.02em}
+  .bot-foot strong{color:var(--botColor);font-size:.92cqw;font-weight:400;white-space:nowrap}
+  .bot-foot strong .tiny-heart{font-size:.65em}
+  .bot-state{color:#beb5a7}
+  .bot-status-line{margin-top:.5cqh;border-top:1px solid rgba(255,255,255,.08);padding-top:.5cqh;font-size:.63cqw;color:#7a746b;min-height:1.15em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .bot-hud .sporeline{
+    position:absolute;right:.8cqw;top:.85cqh;width:5.5cqw;height:1px;
+    background:linear-gradient(90deg,transparent,var(--botColor),transparent);opacity:.4;animation:sporePulse 2.4s infinite;
+  }
+  @keyframes sporePulse{50%{opacity:.08;transform:scaleX(.45)}}
+
+  /* ---------- ACTION DECK ---------- */
+  .action-deck{
+    position:absolute;z-index:10;left:2.3cqw;right:2.3cqw;bottom:1.75cqh;
+    min-height:15.3cqh;
+    display:grid;grid-template-columns:10.5cqw minmax(0,1fr) 15.6cqw;
+    gap:1.15cqw;
+    padding:1.25cqh 1.25cqw;
+    border:1px solid rgba(239,230,210,.2);
+    background:
+      linear-gradient(180deg,rgba(14,12,18,.94),rgba(5,4,8,.97)),
+      repeating-linear-gradient(90deg,rgba(255,255,255,.022) 0 1px,transparent 1px 6px);
+    box-shadow:0 -20px 70px rgba(0,0,0,.65),inset 0 1px rgba(255,255,255,.06),inset 0 0 70px rgba(0,0,0,.42);
+    clip-path:polygon(1.1cqw 0,calc(100% - 1.1cqw) 0,100% 1.1cqw,100% calc(100% - 1.1cqw),calc(100% - 1.1cqw) 100%,1.1cqw 100%,0 calc(100% - 1.1cqw),0 1.1cqw);
+  }
+  .action-deck.inert{filter:grayscale(.5) brightness(.8)}
+  .action-deck.inert .act{cursor:not-allowed}
+  .deck-stat,.deck-voice{display:flex;flex-direction:column;justify-content:center;min-width:0}
+  .stat-label,.voice-top,.hand-rule-label{font-size:.62cqw;letter-spacing:.15em;color:#8a8277}
+  .stat-value{display:flex;align-items:center;gap:.4cqw;font-family:Georgia,serif;font-size:2.9cqw;line-height:1;margin:.55cqh 0 .35cqh;color:var(--acid)}
+  .stat-value .heartbeat{font-size:1.7cqw;color:var(--hot);filter:drop-shadow(0 0 8px rgba(255,61,143,.65));animation:heartbeat 1.3s ease-in-out infinite}
+  @keyframes heartbeat{0%,100%{transform:scale(1)}12%{transform:scale(1.22)}20%{transform:scale(1)}30%{transform:scale(1.13)}}
+  .deck-stat .tiny{font-size:.58cqw;color:#6c665e;line-height:1.5}
+  .action-main{display:flex;flex-direction:column;justify-content:space-between;min-width:0}
+  .action-grid{display:flex;gap:.48cqw;height:8.1cqh;align-items:stretch}
+  .act{
+    position:relative;flex:1;min-width:0;
+    border:1px solid rgba(239,230,210,.18);
+    background:linear-gradient(160deg,rgba(255,255,255,.065),rgba(255,255,255,.015));
+    color:var(--ivory);padding:.75cqh .42cqw .5cqh;
+    display:flex;flex-direction:column;align-items:flex-start;justify-content:flex-end;
+    cursor:pointer;text-align:left;overflow:hidden;
+    transition:transform .18s,border-color .18s,background .18s,box-shadow .18s;
+    clip-path:polygon(0 0,calc(100% - .45cqw) 0,100% .45cqw,100% 100%,0 100%);
+  }
+  .act::after{content:"";position:absolute;left:0;right:0;bottom:0;height:2px;background:transparent;transition:.18s}
+  .act .key{position:absolute;top:.32cqh;right:.36cqw;font-size:.48cqw;color:#69635b;border:1px solid rgba(255,255,255,.12);padding:1px 3px}
+  .act b{font-weight:400;font-size:.98cqw;letter-spacing:.055em;line-height:1.2;white-space:nowrap;position:relative;z-index:1}
+  .act small{font-size:.63cqw;color:#9b9286;margin-top:.3cqh;line-height:1.3;white-space:nowrap;position:relative;z-index:1}
+  .act:hover:not(:disabled){transform:translateY(-3px);border-color:rgba(239,230,210,.44);background:linear-gradient(160deg,rgba(255,255,255,.105),rgba(255,255,255,.025))}
+  .act:hover:not(:disabled)::after{background:rgba(239,230,210,.35)}
+  .act:disabled{opacity:.32;cursor:not-allowed;filter:saturate(.4)}
+  .act-bet{border-color:rgba(200,255,104,.33);background:linear-gradient(160deg,rgba(200,255,104,.13),rgba(200,255,104,.025))}
+  .act-bet:hover:not(:disabled){border-color:var(--acid);box-shadow:0 0 28px rgba(200,255,104,.12);background:linear-gradient(160deg,rgba(200,255,104,.2),rgba(200,255,104,.05))}
+  .act-bet b,.act-bet small{color:var(--acid)}
+  .act-cheat{border-color:rgba(255,61,143,.27)}
+  .act-cheat b,.act-cheat small{color:#ff9cc1}
+  .act-cheat:hover:not(:disabled){border-color:var(--hot);box-shadow:0 0 28px rgba(255,61,143,.12)}
+  .act-peek b,.act-peek small{color:#9bdaff}
+  .act-peek:hover:not(:disabled){border-color:var(--cyan);box-shadow:0 0 28px rgba(99,246,255,.1)}
+  .act-fold b{color:#a8a095}
+  .act-fold:hover:not(:disabled){border-color:rgba(255,103,79,.5)}
+  .act-next{
+    display:none;width:100%;align-items:center;justify-content:center;flex-direction:row;gap:1cqw;
+    background:linear-gradient(135deg,rgba(200,255,104,.19),rgba(200,255,104,.035));
+    border-color:var(--acid);color:var(--acid);animation:nextPulse 2.1s infinite;
+  }
+  .act-next b{font-size:1.15cqw;letter-spacing:.16em}
+  .act-next span{font-size:1.8cqw;line-height:0}
+  @keyframes nextPulse{50%{box-shadow:0 0 35px rgba(200,255,104,.16)}}
+  .action-deck.next-mode .action-grid .act:not(.act-next){display:none}
+  .action-deck.next-mode .act-next{display:flex}
+  .action-help{font-size:.65cqw;line-height:1.45;color:#7d766d;min-height:2.4em;padding-top:.55cqh;border-top:1px dashed rgba(255,255,255,.08);margin-top:.6cqh}
+  .action-help b{color:#b5ac9d;font-weight:400}
+  .deck-voice{border-left:1px solid rgba(239,230,210,.12);padding-left:1cqw;justify-content:space-between}
+  .voice-top{display:flex;align-items:center;justify-content:space-between}
+  .voice-top i{width:.35cqw;height:.35cqw;background:var(--hot);border-radius:50%;box-shadow:0 0 9px var(--hot);animation:voiceDot 1.3s infinite}
+  @keyframes voiceDot{50%{opacity:.2}}
+  .deck-voice p{margin:.75cqh 0;font-family:Georgia,"Times New Roman",serif;font-size:.84cqw;line-height:1.45;color:#c2b8a8;min-height:4.1em;overflow:hidden}
+  .pot-line{display:flex;justify-content:space-between;align-items:baseline;border-top:1px solid rgba(255,255,255,.11);padding-top:.7cqh;color:#857e74;font-size:.63cqw;letter-spacing:.08em}
+  .pot-line strong{color:var(--gold);font-family:Georgia,serif;font-size:1.32cqw;font-weight:400}
+
+  /* ---------- OVERLAYS ---------- */
+  .toast{
+    position:absolute;z-index:20;left:50%;top:31%;transform:translate(-50%,-46%);
+    pointer-events:none;opacity:0;text-align:center;
+    font-family:Georgia,"Times New Roman",serif;font-size:2.5cqw;line-height:1.08;
+    letter-spacing:.02em;color:var(--ivory);
+    text-shadow:3px 0 rgba(255,61,143,.55),-2px 0 rgba(99,246,255,.4),0 8px 30px #000;
+    width:70cqw;
+  }
+  .toast.show{animation:toastIn 2.8s cubic-bezier(.2,.8,.2,1) both}
+  .toast small{display:block;font-family:"Courier New",monospace;font-size:.62cqw;color:var(--acid);letter-spacing:.22em;margin-top:1.2cqh;text-shadow:none}
+  @keyframes toastIn{
+    0%{opacity:0;transform:translate(-50%,-35%) scale(.92);filter:blur(8px)}
+    12%{opacity:1;transform:translate(-50%,-50%) scale(1);filter:blur(0)}
+    77%{opacity:1;transform:translate(-50%,-50%) scale(1)}
+    100%{opacity:0;transform:translate(-50%,-54%) scale(1.02)}
+  }
+  .target-hint{
+    position:absolute;z-index:21;left:50%;top:21.5cqh;transform:translateX(-50%);
+    width:31cqw;padding:1.35cqh 1.3cqw;
+    background:rgba(7,5,12,.92);border:1px solid var(--hot);
+    box-shadow:0 0 42px rgba(255,61,143,.22),inset 0 0 25px rgba(255,61,143,.07);
+    text-align:center;animation:targetJitter 2.4s infinite;
+  }
+  @keyframes targetJitter{0%,100%{transform:translateX(-50%)}50%{transform:translate(calc(-50% + 2px),-1px)}}
+  .target-hint p{margin:0 0 .8cqh;font-size:.72cqw;line-height:1.45;letter-spacing:.07em;color:#ffaccc}
+  .target-hint small{display:block;color:#766e66;font-size:.57cqw;margin-bottom:1cqh}
+  .target-hint button{
+    background:transparent;border:1px solid rgba(239,230,210,.25);color:#a69d90;
+    font-size:.58cqw;letter-spacing:.11em;padding:.5cqh .9cqw;cursor:pointer
+  }
+  .target-hint button:hover{border-color:var(--ivory);color:var(--ivory)}
+  .help-panel{
+    position:absolute;z-index:40;left:50%;top:50%;transform:translate(-50%,-50%);
+    width:57cqw;max-height:82cqh;overflow:auto;padding:4cqh 4.2cqw;
+    background:linear-gradient(135deg,rgba(15,12,19,.985),rgba(5,4,8,.99));
+    border:1px solid rgba(239,230,210,.25);
+    box-shadow:0 30px 120px #000, inset 0 0 80px rgba(200,255,104,.025);
+    clip-path:polygon(1.5cqw 0,calc(100% - 1.5cqw) 0,100% 1.5cqw,100% calc(100% - 1.5cqw),calc(100% - 1.5cqw) 100%,1.5cqw 100%,0 calc(100% - 1.5cqw),0 1.5cqw);
+  }
+  .help-panel h3{margin:0 0 .6cqh;font-family:Georgia,serif;font-weight:400;font-size:2cqw;letter-spacing:.01em}
+  .help-panel h3 em{color:var(--acid);font-style:normal}
+  .help-panel .help-intro{color:#8e8579;font-size:.75cqw;line-height:1.55;margin-bottom:2.4cqh}
+  .help-grid{display:grid;grid-template-columns:1fr 1fr;gap:1.5cqw}
+  .help-grid article{border-top:1px solid var(--line);padding-top:1.2cqh}
+  .help-grid b{display:block;color:var(--acid);font-size:.7cqw;letter-spacing:.1em;margin-bottom:.55cqh}
+  .help-grid p{font-family:Georgia,serif;color:#aaa194;font-size:.75cqw;line-height:1.55;margin:0}
+  .help-panel .close{position:absolute;right:1.2cqw;top:1.1cqh;width:2.4cqw;height:2.4cqw;border:1px solid var(--line);background:transparent;cursor:pointer;font-size:1.2cqw;color:#8e8579}
+  .help-panel .close:hover{color:var(--hot);border-color:var(--hot)}
+  .help-rank{margin-top:2.2cqh;border-top:1px solid var(--line);padding-top:1.6cqh;font-size:.6cqw;line-height:1.65;color:#777067}
+  .help-rank b{color:#b8afa1;font-weight:400}
+
+  /* ---------- START SCREEN ---------- */
+  .screen{
+    position:absolute;inset:0;z-index:30;
+    background:
+      radial-gradient(ellipse at 74% 42%,rgba(49,11,30,.32),transparent 48%),
+      radial-gradient(ellipse at 8% 90%,rgba(48,62,19,.24),transparent 44%),
+      linear-gradient(110deg,rgba(3,2,6,.975) 0%,rgba(4,3,8,.9) 55%,rgba(4,3,8,.97) 100%);
+    backdrop-filter:blur(2px);
+  }
+  .start-screen{
+    display:grid;grid-template-columns:1.18fr .82fr;gap:3.1cqw;
+    padding:5.2cqh 4.6cqw 3.6cqh;
+    overflow:auto;scrollbar-width:thin;scrollbar-color:#28232d transparent;
+  }
+  .start-left{display:flex;flex-direction:column;justify-content:center;min-width:0;position:relative}
+  .start-right{display:flex;align-items:center;min-width:0}
+  .kicker{font-size:.59cqw;letter-spacing:.26em;color:#7e776b;display:flex;align-items:center;gap:.7cqw}
+  .kicker::before{content:"";width:2.2cqw;height:1px;background:var(--hot);box-shadow:0 0 10px var(--hot)}
+  .mega{
+    position:relative;margin:1.2cqh 0 1.3cqh;
+    font-family:Georgia,"Times New Roman",serif;font-weight:400;
+    font-size:8.4cqw;line-height:.78;letter-spacing:-.062em;
+    color:var(--ivory);text-transform:uppercase;
+    text-shadow:4px 0 0 rgba(255,61,143,.18),-3px 0 0 rgba(99,246,255,.12);
+  }
+  .mega span{color:var(--acid);display:inline-block;position:relative;text-shadow:4px 0 var(--hot),-3px 0 var(--cyan)}
+  .mega::before,.mega::after{
+    content:attr(data-text);position:absolute;inset:0;pointer-events:none;
+    font-family:inherit;font-size:inherit;line-height:inherit;letter-spacing:inherit;
+    white-space:pre-line;opacity:.5;
+  }
+  .mega::before{color:var(--hot);left:2px;clip-path:inset(12% 0 66% 0);animation:titleGlitch 5.7s infinite}
+  .mega::after{color:var(--cyan);left:-2px;clip-path:inset(61% 0 20% 0);animation:titleGlitch2 4.3s infinite}
+  @keyframes titleGlitch{0%,88%,100%{transform:translate(0);opacity:0}89%{transform:translate(-5px,2px);opacity:.7}91%{transform:translate(4px,-1px);opacity:.4}93%{transform:translate(-2px);opacity:.6}95%{opacity:0}}
+  @keyframes titleGlitch2{0%,79%,100%{transform:translate(0);opacity:0}80%{transform:translate(5px,-2px);opacity:.6}82%{transform:translate(-3px,1px);opacity:.3}84%{opacity:0}}
+  .slogan{
+    font-family:Georgia,"Times New Roman",serif;font-style:italic;
+    color:#ffb4ce;font-size:1.8cqw;line-height:1.25;margin:.5cqh 0 2cqh;
+    text-shadow:0 0 25px rgba(255,61,143,.16);
+  }
+  .setting{
+    max-width:48cqw;color:#a49b8d;font-size:.73cqw;line-height:1.65;
+    margin:0 0 2.5cqh;border-left:1px solid rgba(239,230,210,.2);padding-left:1.2cqw;
+  }
+  .setting b{color:#d6cbbb;font-weight:400}
+  .character-row{display:flex;gap:1cqw}
+  .char-card{
+    flex:1;min-width:0;display:flex;gap:.85cqw;align-items:center;
+    padding:1cqh .9cqw;border-top:1px solid rgba(255,255,255,.12);
+    background:linear-gradient(110deg,rgba(255,255,255,.025),transparent);
+  }
+  .char-card:last-child{border-top-color:rgba(255,61,143,.3)}
+  .char-sigil{width:3.1cqw;height:3.1cqw;flex:0 0 auto;position:relative}
+  .char-sigil svg{width:100%;height:100%;display:block;overflow:visible}
+  .char-info{min-width:0}
+  .char-info strong{display:block;font-family:Georgia,serif;font-size:.8cqw;font-weight:400;letter-spacing:.04em;color:#d9cfc0;margin-bottom:.3cqh}
+  .char-info span{display:block;font-size:.55cqw;line-height:1.45;color:#736d64}
+  .char-card.mold .char-info strong{color:var(--mold)}
+  .char-card.lady .char-info strong{color:#ff9ec4}
+
+  .menu-frame{
+    width:100%;padding:2.5cqh 1.7cqw 1.9cqh;position:relative;
+    border:1px solid rgba(239,230,210,.2);
+    background:linear-gradient(155deg,rgba(17,14,22,.9),rgba(6,5,9,.92));
+    box-shadow:0 25px 80px rgba(0,0,0,.45),inset 0 0 50px rgba(0,0,0,.2);
+    clip-path:polygon(1.2cqw 0,calc(100% - 1.2cqw) 0,100% 1.2cqw,100% calc(100% - 1.2cqw),calc(100% - 1.2cqw) 100%,1.2cqw 100%,0 calc(100% - 1.2cqw),0 1.2cqw);
+  }
+  .menu-frame::before{
+    content:"";position:absolute;left:1.7cqw;right:1.7cqw;top:0;height:1px;
+    background:linear-gradient(90deg,transparent,var(--acid),transparent);opacity:.4;
+  }
+  .frame-top{font-size:.55cqw;letter-spacing:.2em;color:#777066;margin-bottom:1.7cqh;display:flex;justify-content:space-between;align-items:center}
+  .frame-top span{color:var(--acid);font-size:.5cqw;border:1px solid rgba(200,255,104,.2);padding:2px 4px}
+  .mechanics{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:1.3cqh}
+  .mechanics li{display:grid;grid-template-columns:1.5cqw 1fr;gap:.8cqw;border-top:1px solid rgba(255,255,255,.08);padding-top:1.15cqh}
+  .mechanics li>span{font-family:Georgia,serif;color:#4e4944;font-size:.85cqw;line-height:1}
+  .mechanics b{display:block;font-size:.62cqw;letter-spacing:.1em;color:#e3d8c7;font-weight:400;margin-bottom:.35cqh}
+  .mechanics p{margin:0;font-family:Georgia,serif;font-size:.64cqw;line-height:1.45;color:#8b8378}
+  .mechanics li:nth-child(1) b{color:var(--cyan)}
+  .mechanics li:nth-child(2) b{color:var(--hot)}
+  .mechanics li:nth-child(3) b{color:var(--acid)}
+  .hand-rule{
+    margin:1.8cqh 0;padding:.9cqh .8cqw;
+    border:1px dashed rgba(239,230,210,.16);
+    font-size:.55cqw;line-height:1.55;color:#81796e;background:rgba(255,255,255,.015);
+  }
+  .hand-rule b{color:var(--gold);font-weight:400}
+  .start-btn{
+    width:100%;position:relative;display:flex;align-items:center;justify-content:space-between;
+    padding:1.8cqh 1.25cqw;border:1px solid var(--acid);cursor:pointer;
+    background:var(--acid);color:#0b0907;
+    font-size:.8cqw;letter-spacing:.15em;font-weight:bold;
+    transition:transform .18s,background .18s,box-shadow .18s;
+    box-shadow:0 0 0 rgba(200,255,104,0);
+  }
+  .start-btn b{font-size:1.5cqw;line-height:0.5;font-weight:400}
+  .start-btn:hover{transform:translate(-2px,-2px);box-shadow:7px 7px 0 var(--hot);background:#ddff9c}
+  .start-btn:active{transform:translate(0,0);box-shadow:2px 2px 0 var(--hot)}
+  .start-btn small{display:block;font-size:.45cqw;letter-spacing:.1em;color:#405126;margin-top:.3cqh}
+  .fineprint{margin:1.2cqh 0 0;font-size:.49cqw;line-height:1.55;color:#565149;text-align:center}
+  .start-bottom{
+    position:absolute;left:4.6cqw;right:4.6cqw;bottom:1.7cqh;
+    display:flex;justify-content:space-between;align-items:center;
+    font-size:.5cqw;letter-spacing:.13em;color:#504b44;border-top:1px solid rgba(255,255,255,.07);padding-top:1.2cqh;
+  }
+  .start-bottom span:last-child{color:#6c625b}
+
+  /* ---------- END SCREEN ---------- */
+  .end-screen{
+    display:grid;place-items:center;
+    background:
+      radial-gradient(ellipse at 50% 45%,rgba(53,13,31,.55),transparent 50%),
+      rgba(3,2,6,.92);
+  }
+  .end-card{
+    width:56cqw;max-height:84cqh;overflow:auto;
+    border:1px solid rgba(239,230,210,.23);
+    background:linear-gradient(145deg,rgba(16,13,20,.98),rgba(5,4,8,.99));
+    box-shadow:0 30px 120px #000,inset 0 0 90px rgba(255,61,143,.035);
+    padding:4.5cqh 4.2cqw 3.5cqh;position:relative;
+    clip-path:polygon(1.5cqw 0,calc(100% - 1.5cqw) 0,100% 1.5cqw,100% calc(100% - 1.5cqw),calc(100% - 1.5cqw) 100%,1.5cqw 100%,0 calc(100% - 1.5cqw),0 1.5cqw);
+  }
+  .end-card::before{content:"";position:absolute;left:12%;right:12%;top:0;height:1px;background:linear-gradient(90deg,transparent,var(--hot),transparent)}
+  .end-card h2{font-family:Georgia,serif;font-size:4.9cqw;line-height:.95;letter-spacing:-.04em;margin:1.2cqh 0 1.2cqh;font-weight:400}
+  .end-card h2 span{color:var(--acid)}
+  .end-card .end-text{font-family:Georgia,serif;font-size:.86cqw;line-height:1.6;color:#a79e91;margin:0 0 2.4cqh;max-width:43cqw}
+  .end-stats{display:grid;grid-template-columns:repeat(3,1fr);border-top:1px solid var(--line);border-bottom:1px solid var(--line);margin-bottom:2.5cqh}
+  .end-stat{padding:1.4cqh 1cqw;border-right:1px solid var(--line)}
+  .end-stat:last-child{border-right:0}
+  .end-stat span{display:block;font-size:.5cqw;letter-spacing:.15em;color:#69635a;margin-bottom:.6cqh}
+  .end-stat strong{font-family:Georgia,serif;font-size:1.7cqw;font-weight:400;color:var(--ivory)}
+  .end-stat:nth-child(2) strong{color:var(--gold)}
+  .end-card .again{
+    border:1px solid var(--acid);background:var(--acid);color:#0a0806;padding:1.4cqh 1.4cqw;
+    font-size:.72cqw;letter-spacing:.14em;cursor:pointer;font-weight:bold;transition:.18s;
+  }
+  .end-card .again:hover{box-shadow:6px 6px 0 var(--hot);transform:translate(-2px,-2px)}
+  .end-card .reset-note{font-size:.48cqw;line-height:1.5;color:#5b554e;margin-top:1.2cqh}
+
+  /* ---------- ANIMATIONS ---------- */
+  @keyframes stageShake{
+    0%,100%{transform:translate(0,0)}
+    10%{transform:translate(-5px,2px) rotate(-.15deg)}
+    20%{transform:translate(5px,-3px) rotate(.12deg)}
+    30%{transform:translate(-4px,-1px)}
+    42%{transform:translate(3px,3px) rotate(-.08deg)}
+    55%{transform:translate(-2px,1px)}
+    68%{transform:translate(2px,-2px)}
+    82%{transform:translate(-1px,1px)}
+  }
+  #stage.shake{animation:stageShake .5s cubic-bezier(.36,.07,.19,.97)}
+  #stage.glitch .vignette{filter:hue-rotate(65deg) saturate(1.8);mix-blend-mode:screen;opacity:.38}
+  #stage.glitch #scene{filter:invert(.1) hue-rotate(28deg) saturate(1.55);transform:translateX(2px) skewX(-.3deg)}
+  #stage.glitch .topbar,#stage.glitch .action-deck{filter:hue-rotate(45deg) contrast(1.2)}
+  .glitch-text{animation:textFracture .5s steps(2,end)}
+  @keyframes textFracture{
+    0%,100%{text-shadow:0 0 0 transparent}
+    20%{text-shadow:-7px 0 var(--hot),6px 0 var(--cyan)}
+    40%{text-shadow:5px 0 var(--hot),-4px 0 var(--cyan);transform:translateX(2px)}
+    60%{text-shadow:-2px 0 var(--hot),2px 0 var(--cyan);transform:translateX(-1px)}
+    80%{text-shadow:3px 0 var(--hot),-3px 0 var(--cyan)}
+  }
+
+  @media (max-width:900px){
+    .setting{max-width:54cqw}
+    .character-row{display:none}
+    .start-screen{grid-template-columns:1fr;padding:5.6cqh 5cqw 5cqh}
+    .menu-frame{width:100%}
+    .start-right{align-items:flex-start}
+    .bot-sub{display:none}
+    .action-help{font-size:.62cqw}
+    .deck-stat .tiny{display:none}
+  }
+  @media (orientation:portrait) and (max-width:700px){
+    #stage{width:100vw;height:56.25vw}
+    body::after{
+      content:"ПЕРЕВЕРНИТЕ ТЕЛЕФОН. СТОЛ НЕ ЛЮБИТ, КОГДА ЕГО СЖИМАЮТ.";
+      position:fixed;inset:0;z-index:100;background:#040307;color:#ffb4ce;
+      display:grid;place-items:center;text-align:center;padding:20vw 10vw;
+      font-family:Georgia,serif;font-size:5vw;line-height:1.5;letter-spacing:.06em;
+    }
+  }
+</style>
+</head>
+<body>
+<main id="stage" aria-label="Пульс пустоты — сюрреалистичный карточный стол">
+  <canvas id="scene" width="1600" height="900" aria-hidden="true"></canvas>
+  <div class="vignette"></div>
+  <div class="scanlines"></div>
+  <div class="screen-grain"></div>
+
+  <header class="topbar">
+    <div class="brand"><span class="brand-eye"></span><span>ПУЛЬС <em>ПУСТОТЫ</em></span></div>
+    <div class="round-chip"><span id="roundNow">00</span><i>/</i><span>05 ВДОХОВ</span></div>
+    <div class="top-actions">
+      <button class="mini" id="soundBtn" type="button" title="Включить или выключить звук">ЗВУК: ВКЛ</button>
+      <button class="mini square" id="helpBtn" type="button" aria-label="Правила игры">?</button>
+    </div>
+  </header>
+
+  <section class="bot-hud mold" id="moldHud" aria-live="polite">
+    <div class="sporeline"></div>
+    <div class="bot-head"><span class="bot-index">01</span><h2>БАРОН ПЛЕСЕНЬ</h2></div>
+    <p class="bot-sub">колония в смокинге · боится света и дезинфекции</p>
+    <div class="meter"><span id="moldBar"></span></div>
+    <div class="bot-foot"><span class="bot-state" id="moldState">ожидает раздачи</span><strong><span id="moldPulse">12</span> <span class="tiny-heart">♥</span></strong></div>
+    <div class="bot-status-line" id="moldLine">принюхивается к колоде</div>
+  </section>
+
+  <section class="bot-hud lady dead" id="ladyHud" aria-live="polite">
+    <div class="sporeline"></div>
+    <div class="bot-head"><span class="bot-index">02</span><h2>ЛЕДИ 404</h2></div>
+    <p class="bot-sub">маркиза отсутствующих соединений · боится простых чисел</p>
+    <div class="meter"><span id="ladyBar"></span></div>
+    <div class="bot-foot"><span class="bot-state" id="ladyState">потеряна</span><strong><span id="ladyPulse">0</span> <span class="tiny-heart">♥</span></strong></div>
+    <div class="bot-status-line" id="ladyLine">// соединение не установлено</div>
+  </section>
+
+  <div class="toast" id="toast"></div>
+
+  <div class="target-hint hidden" id="targetHint">
+    <p>ВЫБЕРИТЕ ОДНУ ИЗ СВОИХ КАРТ ИЛИ КАРТУ РЕАЛЬНОСТИ.<br>КОЛОДА ПЕРЕПИШЕТ ЕЁ В ЧУЖУЮ ПАМЯТЬ.</p>
+    <small>Смута стоит 1 пульс. Наведите курсор на карту.</small>
+    <button type="button" id="cancelTarget">ПЕРЕДУМАТЬ</button>
+  </div>
+
+  <section class="action-deck inert" id="actionDeck">
+    <div class="deck-stat">
+      <div class="stat-label">ВАШ ПУЛЬС</div>
+      <div class="stat-value"><span id="playerPulse">12</span><span class="heartbeat">♥</span></div>
+      <div class="tiny">жизнь · ставка · топливо</div>
+    </div>
+    <div class="action-main">
+      <div class="action-grid" id="actionGrid">
+        <button class="act act-check" data-act="check" type="button"><span class="key">C</span><b>ВСКРЫТЬСЯ</b><small>без ставки</small></button>
+        <button class="act act-bet" data-act="bet" type="button"><span class="key">B</span><b>ПОДНЯТЬ</b><small>−2 пульса</small></button>
+        <button class="act act-cheat" data-act="cheat" type="button"><span class="key">M</span><b>СМУТА</b><small>−1 · переписать</small></button>
+        <button class="act act-peek" data-act="peek" type="button"><span class="key">L</span><b>ПОДСЛУШАТЬ</b><small>−1 · открыть тайну</small></button>
+        <button class="act act-fold" data-act="fold" type="button"><span class="key">F</span><b>СБРОСИТЬ</b><small>отдать анте</small></button>
+        <button class="act act-next" id="nextBtn" data-act="next" type="button"><b>СЛЕДУЮЩИЙ ВДОХ</b><span>→</span></button>
+      </div>
+      <div class="action-help" id="actionHelp">Соберите лучшую руку: две ваши карты + карта Реальности. <b>Закон вдоха</b> уже может всё изменить.</div>
+    </div>
+    <div class="deck-voice">
+      <div class="voice-top"><span>СЛУХ ГОВОРИТ</span><i></i></div>
+      <p id="voiceText">Стол ждёт вашего первого вздоха.</p>
+      <div class="pot-line"><span>В БАНКЕ</span><strong><span id="potValue">0</span> ♥</strong></div>
+    </div>
+  </section>
+
+  <section class="help-panel hidden" id="helpPanel" aria-modal="true" role="dialog">
+    <button class="close" id="closeHelp" type="button" aria-label="Закрыть правила">×</button>
+    <h3>КАК НЕ СТАТЬ <em>КАРТОЙ</em></h3>
+    <p class="help-intro">Пять вдохов за живым столом. У каждого — 12 ударов пульса. Анте уходит в банк само. Ставки и смута пьют ваш пульс. На нуле вы становитесь частью колоды. Побеждает тот, у кого к концу пятого вдоха больше пульса.</p>
+    <div class="help-grid">
+      <article><b>РУКА</b><p>Две ваши карты + одна общая карта Реальности. Три карты одного достоинства бьют всё. Дальше — стрит-флеш, стрит, флеш, пара, старшая карта.</p></article>
+      <article><b>ЗАКОН ВДОХА</b><p>Каждый раунд Слух вывешивает новый закон. Он по-настоящему меняет масти, силу карт, пары и даже то, кто считается победителем.</p></article>
+      <article><b>ДЕЙСТВИЯ</b><p><b>Вскрыться</b> — дойти до шоудауна без ставки. <b>Поднять</b> — добавить 2 пульса, боты могут сбросить. <b>Смута</b> — переписать карту. <b>Подслушать</b> — открыть тайную карту бота.</p></article>
+      <article><b>ЖИВАЯ РЕАЛЬНОСТЬ</b><p>Перед вскрытием карта Реальности иногда судорожно меняется. Это влияет на всех. Блефуйте осторожно: колода уже видела ваши мысли.</p></article>
+    </div>
+    <div class="help-rank"><b>СУДОРОГА РЕАЛЬНОСТИ</b> — общая карта может сменить достоинство и масть перед сравнением рук. <b>СЛУХ</b> не предупреждает. <b>ПАМЯТЬ</b> не спрашивает.</div>
+  </section>
+
+  <section class="screen start-screen" id="startScreen">
+    <div class="start-left">
+      <div class="kicker">КАЗИНО «ВНУТРЕННЕЕ УХО» · СОН №13</div>
+      <h1 class="mega" data-text="ПУЛЬС
+ПУСТОТЫ">ПУЛЬС<br><span>ПУСТОТЫ</span></h1>
+      <p class="slogan">«Не считай карты.<br>Они уже посчитали тебя.»</p>
+      <p class="setting">Вы сидите за столом из живой мембраны <b>на дне высохшего океана</b>. Ваши фишки — удары сердца. Ваши соперники — плесень в смокинге и женщина, которой нет, когда на неё смотрят. Пять вдохов. Один из вас станет картой.</p>
+      <div class="character-row">
+        <article class="char-card mold">
+          <div class="char-sigil" aria-hidden="true">
+            <svg viewBox="0 0 60 60"><path d="M30 6c13 0 21 9 21 20 0 16-9 27-21 27S9 42 9 26C9 15 17 6 30 6Z" fill="#27351f" stroke="#9dff9f" stroke-opacity=".5"/><circle cx="20" cy="20" r="8" fill="#6b8a3f" opacity=".8"/><circle cx="39" cy="17" r="7" fill="#4e6b2e" opacity=".85"/><circle cx="39" cy="34" r="11" fill="#34481f"/><circle cx="21" cy="37" r="6" fill="#7d9d4b" opacity=".6"/><circle cx="34" cy="28" r="3.2" fill="#ffedb1"/><circle cx="34" cy="28" r="1.3" fill="#101009"/><path d="M24 18c3-3 9-3 12 0" stroke="#cbb98a" stroke-width="1.5" fill="none"/><path d="M19 9h24l-3-7H22Z" fill="#11120c" stroke="#9dff9f" stroke-opacity=".3"/><path d="M37 28h8" stroke="#cbb98a" stroke-width="1" opacity=".6"/></svg>
+          </div>
+          <div class="char-info"><strong>БАРОН ПЛЕСЕНЬ</strong><span>Ест карты, когда думает. Краснеет от света и дезинфекции. Читерит, выплёвывая обратно уже пережёванную карту.</span></div>
+        </article>
+        <article class="char-card lady">
+          <div class="char-sigil" aria-hidden="true">
+            <svg viewBox="0 0 60 60"><path d="M30 7 52 19v30L30 60 8 49V19Z" fill="#170d16" stroke="#ff3d8f" stroke-opacity=".42"/><rect x="19" y="17" width="22" height="27" rx="2" fill="#eddfd7"/><rect x="24" y="25" width="5" height="4" fill="#ff3d8f"/><rect x="33" y="25" width="5" height="4" fill="#ff3d8f"/><path d="M24 36h12" stroke="#1b0d13" stroke-width="2" opacity=".6"/><path d="M17 17 30 5l13 12-4 5-9-7-9 7Z" fill="#ff3d8f" opacity=".55"/><rect x="5" y="31" width="8" height="2" fill="#63f6ff" opacity=".6"/><rect x="44" y="40" width="12" height="2" fill="#ff3d8f" opacity=".5"/><rect x="13" y="51" width="8" height="1.5" fill="#63f6ff" opacity=".3"/></svg>
+          </div>
+          <div class="char-info"><strong>ЛЕДИ 404</strong><span>Пьёт чай из пустого экрана. Исчезает, когда её считают. Боится простых чисел и читерит, восстанавливая карту из кэша пустоты.</span></div>
+        </article>
+      </div>
+    </div>
+    <aside class="start-right">
+      <div class="menu-frame">
+        <div class="frame-top">ПРАВИЛА, КОТОРЫЕ ЕЩЁ НЕ СБЕЖАЛИ <span>СТОЛ ЖИВ</span></div>
+        <ol class="mechanics">
+          <li><span>01</span><div><b>ЖИВАЯ РЕАЛЬНОСТЬ</b><p>Перед шоудауном общая карта может переписаться сама. Ваша лучшая рука — только черновик.</p></div></li>
+          <li><span>02</span><div><b>СТАВКИ ПУЛЬСОМ</b><p>Никаких фишек. Вы ставите собственные удары сердца. Проиграли — стали воспоминанием.</p></div></li>
+          <li><span>03</span><div><b>ЗАКОН ВДОХА</b><p>Стол каждый раунд придумывает новое правило. Иногда «пара» перестаёт существовать. Иногда побеждает худшая рука. Иногда масти меняются местами.</p></div></li>
+        </ol>
+        <div class="hand-rule"><span class="hand-rule-label">ПРАВИЛО, КОТОРОЕ ПОКА ЖИВО</span><br><b>Две личные карты + карта Реальности = рука.</b> Пять вдохов. Больше всех пульса в конце — победил.</div>
+        <button class="start-btn" id="startBtn" type="button"><span>СЕСТЬ ЗА СТОЛ<small>звук включится сам. не оборачивайтесь.</small></span><b>↙</b></button>
+        <p class="fineprint">Настоящих ставок нет. Только настоящий страх. Игра не помнит вас после закрытия вкладки. Колода — помнит.</p>
+      </div>
+    </aside>
+    <div class="start-bottom"><span>5 ВДОХОВ · 2 ПРОТИВНИКА · 1 ЖИВАЯ КОЛОДА</span><span>СЛУХ УЖЕ СЛУШАЕТ</span></div>
+  </section>
+
+  <section class="screen end-screen hidden" id="endScreen">
+    <div class="end-card">
+      <div class="kicker" id="endKicker">ВДОХ ЗАКОНЧИЛСЯ</div>
+      <h2 id="endTitle">ВЫ <span>КАРТА</span></h2>
+      <p class="end-text" id="endText"></p>
+      <div class="end-stats">
+        <div class="end-stat"><span>ВАШ ПУЛЬС</span><strong id="endPulse">0</strong></div>
+        <div class="end-stat"><span>ПИК ПУЛЬСА</span><strong id="endPeak">0</strong></div>
+        <div class="end-stat"><span>ВДОХОВ</span><strong id="endRounds">0 / 5</strong></div>
+      </div>
+      <button class="again" id="restartBtn" type="button">ЕЩЁ ОДИН ВДОХ →</button>
+      <p class="reset-note">Стол уже перетасовал вашу память. В следующий раз карты лягут иначе. Наверное.</p>
+    </div>
+  </section>
+</main>
+
+<script>
+(() => {
+  "use strict";
+
+  /* ============================================================
+     ПУЛЬС ПУСТОТЫ
+     Всё нарисовано на canvas. Всё звучит через Web Audio.
+     Никаких внешних файлов, библиотек и изображений.
+     ============================================================ */
+
+  const $ = (id) => document.getElementById(id);
+  const canvas = $("scene");
+  const ctx = canvas.getContext("2d");
+  const W = 1600;
+  const H = 900;
+  const DPR = Math.min(1.75, window.devicePixelRatio || 1);
+  canvas.width = Math.round(W * DPR);
+  canvas.height = Math.round(H * DPR);
+
+  const stage = $("stage");
+  const actionDeck = $("actionDeck");
+  const targetHint = $("targetHint");
+  const toastEl = $("toast");
+
+  const clamp = (v, a, b) => v < a ? a : v > b ? b : v;
+  const lerp = (a, b, t) => a + (b - a) * t;
+  const easeOut = t => 1 - Math.pow(1 - t, 3);
+  const easeInOut = t => t < .5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+  const rand = (a = 0, b = 1) => a + Math.random() * (b - a);
+  const randi = (a, b) => Math.floor(rand(a, b + 1));
+  const choice = arr => arr[Math.floor(Math.random() * arr.length)];
+  const chance = p => Math.random() < p;
+  const sleep = ms => new Promise(res => setTimeout(res, ms));
+  const shuffle = arr => {
+    const a = arr.slice();
+    for (let i = a.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [a[i], a[j]] = [a[j], a[i]];
+    }
+    return a;
+  };
+  const roman = n => ["0", "I", "II", "III", "IV", "V"][n] || String(n);
+  const pad2 = n => String(n).padStart(2, "0");
+
+  /* ---------- КАРТЫ ---------- */
+  const SUITS = [
+    { id: "eye",  name: "ОКО",   color: "#1b97a5", dark: "#125e68", glyph: "◉" },
+    { id: "worm", name: "ЧЕРВЬ", color: "#d72b5c", dark: "#8b1c3e", glyph: "∫" },
+    { id: "key",  name: "КЛЮЧ",  color: "#b27b16", dark: "#6d4c0e", glyph: "⚿" },
+    { id: "moon", name: "ЛУНА",  color: "#6f59b8", dark: "#4a3a84", glyph: "☾" }
+  ];
+  const SUIT_BY_ID = Object.fromEntries(SUITS.map(s => [s.id, s]));
+  const RANKS = [
+    { v: 2, label: "2" }, { v: 3, label: "3" }, { v: 4, label: "4" },
+    { v: 5, label: "5" }, { v: 6, label: "6" }, { v: 7, label: "7" },
+    { v: 8, label: "8" }, { v: 9, label: "9" }, { v: 10, label: "10" },
+    { v: 11, label: "В" }, { v: 12, label: "Д" }, { v: 13, label: "К" },
+    { v: 14, label: "Т" }
+  ];
+  let cardUID = 1;
+
+  const LAWS = [
+    {
+      id: "mirror", num: "I", title: "ЗАКОН ЗЕРКАЛА",
+      desc: "Масти вывернуты: ОКО ↔ ЛУНА, ЧЕРВЬ ↔ КЛЮЧ.",
+      detail: "Флеши собираются из изнаночных мастей.",
+      tone: "cyan"
+    },
+    {
+      id: "inverse", num: "II", title: "ЗАКОН НАИЗНАНКУ",
+      desc: "Побеждает не сильнейшая, а СЛАБЕЙШАЯ рука.",
+      detail: "Самая бесполезная комбинация внезапно становится оружием.",
+      tone: "hot"
+    },
+    {
+      id: "famine", num: "III", title: "ЗАКОН ГОЛОДА",
+      desc: "Пары больше не считаются. Их съели до раздачи.",
+      detail: "Тройка всё ещё кричит. Пара — уже нет.",
+      tone: "acid"
+    },
+    {
+      id: "gravity", num: "IV", title: "ЗАКОН ТЯЖЕСТИ",
+      desc: "Старшинство перевёрнуто. Двойка бьёт Туза.",
+      detail: "Все достоинства смотрят в противоположную сторону.",
+      tone: "violet"
+    },
+    {
+      id: "whisper", num: "V", title: "ЗАКОН ШЁПОТА",
+      desc: "Все тайные карты громко шепчут своё значение.",
+      detail: "Скрытых карт за этим столом больше нет.",
+      tone: "cyan"
+    },
+    {
+      id: "greed", num: "VI", title: "ЗАКОН ЖАДНОСТИ",
+      desc: "Анте удвоено. Стол хочет есть дважды.",
+      detail: "Вход в этот вдох стоит дороже.",
+      tone: "gold"
+    }
+  ];
+
+  const HAND_NAMES = {
+    6: "ТРИ ОДИНОКИХ КРИКА",
+    5: "СОН ВНУТРИ СНА",
+    4: "ПРЯМАЯ ЧЕРЕЗ СТЕНУ",
+    3: "ФЛЕШ ИЗ ЧУЖИХ ЗУБОВ",
+    2: "ПАРА ЛИШНИХ СЕРДЕЦ",
+    1: "ОДИНОКИЙ ВДОХ"
+  };
+
+  /* ---------- СОСТОЯНИЕ ---------- */
+  const G = {
+    mode: "menu",
+    phase: "menu",
+    round: 0,
+    maxRounds: 5,
+    ante: 1,
+    pot: 0,
+    law: null,
+    prevLaw: null,
+    reality: null,
+    deck: [],
+    players: [],
+    player: null,
+    bots: [],
+    busy: true,
+    cheatUsed: false,
+    peekUsed: false,
+    targetMode: false,
+    dealAt: 0,
+    showdownAt: 0,
+    revealAll: false,
+    showdownDone: false,
+    roundWinner: null,
+    roundResult: null,
+    pendingTarget: false,
+    stats: { wins: 0, folds: 0, mutations: 0, peeks: 0, botFolds: 0, showdowns: 0 },
+    fx: { shake: 0, glitch: 0, eye: 0, heartbeat: 0 },
+    timers: []
+  };
+
+  const PLAYER_DEFS = [
+    {
+      id: "you", name: "ВЫ", short: "гость с чужой рукой",
+      color: "#c8ff68", bot: false, x: 800, y: 680
+    },
+    {
+      id: "mold", name: "БАРОН ПЛЕСЕНЬ", short: "колония в смокинге",
+      color: "#9dff9f", bot: true, x: 170, y: 400,
+      speech: [
+        "У этой карты привкус вашей юности. Мне нравится.",
+        "Не светите на меня. Я начинаю цвести.",
+        "Я не жульничаю. Я перевариваю.",
+        "Ваша ставка пахнет страхом. Добавьте соли.",
+        "Пахнет дезинфекцией. Кто-то здесь мыл руки.",
+        "В прошлом вдохе вы были вкуснее.",
+        "Я поставлю на вас. Вы выглядите съедобно."
+      ]
+    },
+    {
+      id: "lady", name: "ЛЕДИ 404", short: "маркиза отсутствующих соединений",
+      color: "#ff3d8f", bot: true, x: 1430, y: 400,
+      speech: [
+        "Соединение с реальностью потеряно. Повторите жест.",
+        "Не считайте меня. Я не целое число.",
+        "Ваша ложь дошла. Задержка 800 миллисекунд.",
+        "Я не исчезла. Меня просто ещё не отрисовали.",
+        "Банк — простое число? Мне неприятно.",
+        "Я видела вашу руку до того, как вы её получили.",
+        "Пожалуйста, не смотрите прямо. Я потеку."
+      ]
+    }
+  ];
+
+  function mkCard() {
+    const rank = choice(RANKS);
+    const suit = choice(SUITS);
+    return {
+      uid: cardUID++,
+      rank: rank.v,
+      rankLabel: rank.label,
+      suit: suit.id,
+      color: suit.color,
+      dark: suit.dark,
+      born: performance.now(),
+      mutatedAt: 0,
+      flip: 1
+    };
+  }
+
+  function freshDeck() {
+    const deck = [];
+    for (const s of SUITS) for (const r of RANKS) {
+      deck.push({
+        uid: cardUID++, rank: r.v, rankLabel: r.label,
+        suit: s.id, color: s.color, dark: s.dark,
+        born: performance.now(), mutatedAt: 0, flip: 1
+      });
+    }
+    return shuffle(deck);
+  }
+
+  function drawCardFromDeck() {
+    if (!G.deck.length) G.deck = freshDeck();
+    return G.deck.pop();
+  }
+
+  function makePlayers() {
+    G.players = PLAYER_DEFS.map((def, i) => ({
+      ...def,
+      index: i,
+      pulse: 12,
+      maxPulse: 12,
+      alive: true,
+      hand: [],
+      realityTag: false,
+      folded: false,
+      hiddenRevealed: false,
+      showEval: false,
+      evalResult: null,
+      speechText: "",
+      speechAt: 0,
+      speechUntil: 0,
+      mood: "idle",
+      state: i === 0 ? "готовы слушать" : "принюхивается к тишине",
+      statusLine: i === 0 ? "ваш пульс ещё принадлежит вам" : (i === 1 ? "принюхивается к колоде" : "// соединение не установлено"),
+      cheatUsed: false,
+      glow: 0,
+      flipAt: 0,
+      betThisRound: 0
+    }));
+    G.player = G.players[0];
+    G.bots = G.players.slice(1);
+  }
+
+  /* ---------- ЗВУК ---------- */
+  const Sound = {
+    ctx: null, master: null, ambientGain: null, on: true, started: false, nodes: [],
+    init() {
+      if (this.ctx) return;
+      const AC = window.AudioContext || window.webkitAudioContext;
+      if (!AC) return;
+      try {
+        this.ctx = new AC();
+        this.master = this.ctx.createGain();
+        this.master.gain.value = this.on ? .34 : 0;
+        this.master.connect(this.ctx.destination);
+        this.ambient();
+        this.started = true;
+      } catch (e) { this.ctx = null; }
+    },
+    ambient() {
+      if (!this.ctx) return;
+      const c = this.ctx;
+      const g = c.createGain();
+      g.gain.value = .025;
+      const lp = c.createBiquadFilter();
+      lp.type = "lowpass"; lp.frequency.value = 180; lp.Q.value = 3;
+      const o1 = c.createOscillator(); o1.type = "triangle"; o1.frequency.value = 46;
+      const o2 = c.createOscillator(); o2.type = "sine"; o2.frequency.value = 46.7;
+      const lfo = c.createOscillator(); lfo.type = "sine"; lfo.frequency.value = .07;
+      const lg = c.createGain(); lg.gain.value = 7;
+      lfo.connect(lg); lg.connect(o2.frequency);
+      o1.connect(lp); o2.connect(lp); lp.connect(g); g.connect(this.master);
+      o1.start(); o2.start(); lfo.start();
+      this.nodes.push(o1, o2, lfo);
+
+      const len = Math.floor(c.sampleRate * 2.4);
+      const buf = c.createBuffer(1, len, c.sampleRate);
+      const d = buf.getChannelData(0);
+      let last = 0;
+      for (let i = 0; i < len; i++) {
+        const white = Math.random() * 2 - 1;
+        last = last * .985 + white * .015;
+        d[i] = last;
+      }
+      const src = c.createBufferSource();
+      src.buffer = buf; src.loop = true;
+      const bp = c.createBiquadFilter(); bp.type = "bandpass"; bp.frequency.value = 460; bp.Q.value = .8;
+      const ng = c.createGain(); ng.gain.value = .022;
+      src.connect(bp); bp.connect(ng); ng.connect(this.master); src.start();
+      this.nodes.push(src);
+    },
+    setOn(v) {
+      this.on = v;
+      if (!this.ctx) return;
+      const t = this.ctx.currentTime;
+      this.master.gain.cancelScheduledValues(t);
+      this.master.gain.linearRampToValueAtTime(v ? .34 : 0, t + .18);
+    },
+    toggle() { this.setOn(!this.on); return this.on; },
+    tone(freq, dur = .12, type = "sine", vol = .08, slide = 0, when = 0) {
+      if (!this.ctx || !this.on) return;
+      const c = this.ctx, t = c.currentTime + when;
+      const o = c.createOscillator(), g = c.createGain();
+      o.type = type; o.frequency.setValueAtTime(freq, t);
+      if (slide) o.frequency.exponentialRampToValueAtTime(Math.max(20, freq + slide), t + dur);
+      g.gain.setValueAtTime(.0001, t);
+      g.gain.exponentialRampToValueAtTime(Math.max(.0002, vol), t + .012);
+      g.gain.exponentialRampToValueAtTime(.0001, t + dur);
+      o.connect(g); g.connect(this.master);
+      o.start(t); o.stop(t + dur + .04);
+    },
+    noise(dur = .18, vol = .08, freq = 1200, q = .8, when = 0) {
+      if (!this.ctx || !this.on) return;
+      const c = this.ctx, t = c.currentTime + when;
+      const len = Math.max(1, Math.floor(c.sampleRate * dur));
+      const buf = c.createBuffer(1, len, c.sampleRate);
+      const d = buf.getChannelData(0);
+      for (let i = 0; i < len; i++) d[i] = Math.random() * 2 - 1;
+      const src = c.createBufferSource(); src.buffer = buf;
+      const f = c.createBiquadFilter(); f.type = "bandpass"; f.frequency.setValueAtTime(freq, t); f.Q.value = q;
+      const g = c.createGain();
+      g.gain.setValueAtTime(vol, t); g.gain.exponentialRampToValueAtTime(.0001, t + dur);
+      src.connect(f); f.connect(g); g.connect(this.master);
+      src.start(t); src.stop(t + dur);
+    },
+    deal(i = 0) {
+      this.noise(.075, .035, 2100 + i * 90, 1.4);
+      this.tone(340 + i * 22, .04, "triangle", .02, 80);
+    },
+    click() { this.noise(.045, .025, 1600, 1.2); this.tone(720, .04, "square", .012, -180); },
+    chip() { this.tone(180, .1, "triangle", .06, -80); this.tone(440, .04, "square", .01, 90, .01); },
+    glitch() {
+      this.noise(.32, .08, 900, .65);
+      [140, 97, 233, 61].forEach((f, i) => this.tone(f, .16, "sawtooth", .018, f * .4, i * .035));
+    },
+    reveal() {
+      this.tone(220, .35, "sine", .035, 260);
+      this.tone(330, .28, "triangle", .025, 220, .08);
+      this.noise(.22, .03, 2600, .9, .02);
+    },
+    win() {
+      [220, 277, 329, 440].forEach((f, i) => this.tone(f, .7, "triangle", .035, 8, i * .06));
+      this.tone(110, 1.1, "sine", .05, -20);
+    },
+    lose() {
+      [180, 156, 129, 96].forEach((f, i) => this.tone(f, .5, "sawtooth", .02, -20, i * .12));
+      this.noise(.7, .03, 320, .6);
+    },
+    heartbeat() {
+      this.tone(54, .16, "sine", .13, -10);
+      this.tone(48, .22, "sine", .08, -7, .19);
+    }
+  };
+
+  /* ---------- ИНТЕРФЕЙС ---------- */
+  function updateHUD() {
+    const p = G.player;
+    if (!p) return;
+    $("roundNow").textContent = pad2(G.round);
+    $("playerPulse").textContent = Math.max(0, Math.round(p.pulse));
+    $("potValue").textContent = Math.max(0, Math.round(G.pot));
+    for (const b of G.bots) {
+      const hud = $(b.id + "Hud");
+      if (!hud) continue;
+      const isDead = !b.alive;
+      hud.classList.toggle("dead", isDead);
+      hud.classList.toggle("turn", G.phase === "bots" && G.activeBot === b.id);
+      $(b.id + "Pulse").textContent = Math.max(0, Math.round(b.pulse));
+      $(b.id + "State").textContent = b.state;
+      $(b.id + "Line").textContent = b.statusLine;
+      const bar = $(b.id + "Bar");
+      if (bar) bar.style.width = clamp((b.pulse / 16) * 100, 0, 100) + "%";
+    }
+    const maxPulse = Math.max(16, p.maxPulse);
+    // Player's identity is the number itself; no separate bar needed.
+  }
+
+  function setVoice(text) {
+    const el = $("voiceText");
+    if (!el) return;
+    el.textContent = text;
+    el.classList.remove("glitch-text");
+    void el.offsetWidth;
+    el.classList.add("glitch-text");
+  }
+
+  function setStatus(id, state, line) {
+    const p = G.players.find(x => x.id === id);
+    if (!p) return;
+    if (state != null) p.state = state;
+    if (line != null) p.statusLine = line;
+    updateHUD();
+  }
+
+  function speak(bot, text, duration = 2700) {
+    if (!bot) return;
+    bot.speechText = text;
+    bot.speechAt = performance.now();
+    bot.speechUntil = performance.now() + duration;
+  }
+
+  function toast(text, sub = "") {
+    toastEl.innerHTML = text + (sub ? `<small>${sub}</small>` : "");
+    toastEl.classList.remove("show");
+    void toastEl.offsetWidth;
+    toastEl.classList.add("show");
+    setTimeout(() => toastEl.classList.remove("show"), 2900);
+  }
+
+  function shakeStage(power = 1) {
+    G.fx.shake = Math.max(G.fx.shake, power);
+    stage.classList.remove("shake");
+    void stage.offsetWidth;
+    stage.classList.add("shake");
+    setTimeout(() => stage.classList.remove("shake"), 520);
+  }
+
+  function glitchBurst(power = 1) {
+    G.fx.glitch = Math.max(G.fx.glitch, power);
+    stage.classList.remove("glitch");
+    void stage.offsetWidth;
+    stage.classList.add("glitch");
+    Sound.glitch();
+    setTimeout(() => stage.classList.remove("glitch"), 240 + power * 180);
+    for (let i = 0; i < 20; i++) {
+      G.fx.shake = Math.max(G.fx.shake, power);
+    }
+  }
+
+  function setActionsEnabled(on) {
+    const buttons = [...document.querySelectorAll(".action-grid .act")];
+    for (const btn of buttons) {
+      if (btn.id === "nextBtn") continue;
+      const act = btn.dataset.act;
+      let allow = on && G.phase === "player" && !G.busy;
+      if (allow && (act === "bet") && G.player.pulse < 2) allow = false;
+      if (allow && (act === "cheat") && (G.player.pulse < 1 || G.cheatUsed)) allow = false;
+      if (allow && (act === "peek") && (G.player.pulse < 1 || G.peekUsed)) allow = false;
+      btn.disabled = !allow;
+    }
+    actionDeck.classList.toggle("inert", !on);
+    if (!on) actionDeck.classList.remove("next-mode");
+  }
+
+  function showNextAction(on) {
+    actionDeck.classList.toggle("next-mode", on);
+    const buttons = [...document.querySelectorAll(".action-grid .act")];
+    for (const b of buttons) {
+      if (b.id === "nextBtn") {
+        b.disabled = !on;
+        b.style.display = on ? "flex" : "";
+      } else {
+        b.disabled = true;
+      }
+    }
+    actionDeck.classList.toggle("inert", !on);
+  }
+
+  function updateActionContext() {
+    const help = $("actionHelp");
+    if (!help) return;
+    if (!G.law) {
+      help.innerHTML = "Соберите лучшую руку: две ваши карты + карта Реальности. <b>Закон вдоха</b> уже может всё изменить.";
+      return;
+    }
+    const prep = {
+      mirror: "Масти зеркалятся: ОКО↔ЛУНА, ЧЕРВЬ↔КЛЮЧ.",
+      inverse: "Помните: сейчас побеждает <b>худшая</b> рука. Иногда сбросить карту — плохая идея.",
+      famine: "Пары сгниют при подсчёте. Собирайте флеш, стрит или тройку.",
+      gravity: "Старшинство перевёрнуто: двойка — новая вершина.",
+      whisper: "Тайные карты уже шепчут. Смотрите на их руку, но не верьте.",
+      greed: "Анте этого вдоха — 2 пульса. Проигрыш дороже."
+    };
+    help.innerHTML = `<b>${G.law.title}:</b> ${prep[G.law.id] || G.law.desc} Банк: ${G.pot} пульса.`;
+  }
+
+  function syncLady() {
+    const lady = G.players.find(p => p.id === "lady");
+    const hud = $("ladyHud");
+    if (lady && hud) hud.classList.toggle("dead", !lady.alive);
+  }
+
+  function prime(n) {
+    if (n < 2) return false;
+    for (let i = 2; i * i <= n; i++) if (n % i === 0) return false;
+    return true;
+  }
+
+  /* ============================================================
+     ЛОГИКА СТОЛА
+     ============================================================ */
+
+  function evaluateHand(hand, law = G.law) {
+    const lawId = law ? law.id : "";
+    const cards = (hand || []).filter(Boolean).map(c => {
+      let rank = c.rank;
+      let suit = c.suit;
+      if (lawId === "gravity") rank = 15 - rank;
+      if (lawId === "mirror") {
+        suit = { eye: "moon", moon: "eye", worm: "key", key: "worm" }[suit] || suit;
+      }
+      return { rank, suit };
+    });
+    const ranks = cards.map(c => c.rank).sort((a, b) => b - a);
+    const suits = cards.map(c => c.suit);
+    const counts = {};
+    for (const r of ranks) counts[r] = (counts[r] || 0) + 1;
+    const groups = Object.entries(counts)
+      .map(([r, n]) => ({ rank: +r, n }))
+      .sort((a, b) => b.n - a.n || b.rank - a.rank);
+    const flush = suits.length === 3 && suits[0] === suits[1] && suits[1] === suits[2];
+    const unique = [...new Set(ranks)];
+    let straight = false;
+    let straightHigh = 0;
+    if (unique.length === 3) {
+      if (unique[0] - unique[2] === 2) straightHigh = unique[0];
+      else if (unique[0] === 14 && unique[1] === 3 && unique[2] === 2) straightHigh = 3;
+      straight = straightHigh > 0;
+    }
+
+    let category = 1;
+    let tie = [];
+    let name = HAND_NAMES[1];
+
+    if (groups[0].n === 3) {
+      category = 6;
+      tie = [6, groups[0].rank, groups[0].rank, groups[0].rank];
+      name = HAND_NAMES[6];
+    } else if (straight && flush) {
+      category = 5;
+      tie = [5, straightHigh];
+      name = HAND_NAMES[5];
+    } else if (straight) {
+      category = 4;
+      tie = [4, straightHigh];
+      name = HAND_NAMES[4];
+    } else if (flush) {
+      category = 3;
+      tie = [3, ...ranks];
+      name = HAND_NAMES[3];
+    } else if (groups[0].n === 2) {
+      if (lawId === "famine") {
+        category = 1;
+        tie = [1, ...ranks];
+        name = "ПАРА, КОТОРУЮ СЪЕЛИ";
+      } else {
+        category = 2;
+        tie = [2, groups[0].rank, groups[1].rank];
+        name = HAND_NAMES[2];
+      }
+    } else {
+      category = 1;
+      tie = [1, ...ranks];
+      name = HAND_NAMES[1];
+    }
+
+    const base = { 1: 100, 2: 300, 3: 500, 4: 660, 5: 810, 6: 950 }[category];
+    const kickers = tie.slice(1);
+    const score = Math.round(base + (kickers[0] || 0) * 6.4 + (kickers[1] || 0) * 1.7 + (kickers[2] || 0) * .35);
+    return { category, tie, score, name, cards };
+  }
+
+  function compareHands(a, b, law = G.law) {
+    if (!a || !b) return 0;
+    const av = a.tie, bv = b.tie;
+    const len = Math.max(av.length, bv.length);
+    for (let i = 0; i < len; i++) {
+      const x = av[i] || 0;
+      const y = bv[i] || 0;
+      if (x === y) continue;
+      if (law && law.id === "inverse") return x < y ? 1 : -1;
+      return x > y ? 1 : -1;
+    }
+    return 0;
+  }
+
+  function chooseLaw() {
+    const pool = LAWS.filter(l => !G.prevLaw || l.id !== G.prevLaw.id);
+    return choice(pool);
+  }
+
+  function payPulse(player, amount) {
+    const paid = Math.min(Math.max(0, amount), Math.max(0, player.pulse));
+    player.pulse -= paid;
+    player.betThisRound += paid;
+    G.pot += paid;
+    return paid;
+  }
+
+  function assignDealAnimation(card, order) {
+    card.dealStamp = performance.now() + order * 145;
+    card.dealOrder = order;
+    card.mutatedAt = 0;
+  }
+
+  function pickBotLine(bot, list) {
+    if (!bot) return;
+    const lines = list || bot.speech || ["..."];
+    speak(bot, choice(lines));
+  }
+
+  function botState(bot, state, line) {
+    bot.state = state;
+    if (line != null) bot.statusLine = line;
+    updateHUD();
+  }
+
+  function hiddenCandidates() {
+    return G.bots.filter(b => b.alive && b.hand[1] && !b.hiddenRevealed);
+  }
+
+  function refreshInteractionState() {
+    if (G.phase !== "player" || G.busy) {
+      setActionsEnabled(false);
+      return;
+    }
+    setActionsEnabled(true);
+    updateActionContext();
+    const buttons = [...document.querySelectorAll(".action-grid .act")];
+    for (const b of buttons) {
+      if (b.dataset.act === "peek" && !hiddenCandidates().length) b.disabled = true;
+      if (b.dataset.act === "cheat" && G.cheatUsed) b.disabled = true;
+      if (b.dataset.act === "peek" && G.peekUsed) b.disabled = true;
+    }
+  }
+
+  function resetPlayerForRound(p) {
+    p.hand = [];
+    p.folded = false;
+    p.hiddenRevealed = false;
+    p.showEval = false;
+    p.evalResult = null;
+    p.betThisRound = 0;
+    p.speechText = "";
+    p.speechUntil = 0;
+    p.flipAt = 0;
+    p.mood = "idle";
+    p.cheatUsed = false;
+  }
+
+  function resetRoundUI() {
+    $("targetHint").classList.add("hidden");
+    G.targetMode = false;
+    G.cheatUsed = false;
+    G.peekUsed = false;
+    G.revealAll = false;
+    G.showdownDone = false;
+    G.roundWinner = null;
+    G.roundResult = null;
+    actionDeck.classList.remove("next-mode");
+    G.activeBot = null;
+  }
+
+  async function startRound() {
+    if (G.mode !== "playing") return;
+    if (G.round >= G.maxRounds) {
+      finishMatchByPulse();
+      return;
+    }
+    G.round += 1;
+    resetRoundUI();
+    G.busy = true;
+    G.phase = "deal";
+    G.law = chooseLaw();
+    G.prevLaw = G.law;
+    G.ante = G.law.id === "greed" ? 2 : 1;
+    G.pot = 0;
+    G.deck = freshDeck();
+    G.reality = drawCardFromDeck();
+    G.reality.dealStamp = 0;
+    G.dealAt = performance.now();
+
+    for (const p of G.players) {
+      resetPlayerForRound(p);
+      if (!p.alive) continue;
+      p.pulse = Math.max(0, p.pulse);
+      p.hand = [drawCardFromDeck(), drawCardFromDeck()];
+      assignDealAnimation(p.hand[0], p.index * 2 + 1);
+      assignDealAnimation(p.hand[1], p.index * 2 + 2);
+      payPulse(p, Math.min(G.ante, p.pulse));
+      p.state = p.id === "you" ? "ставит анте" : "нюхает анте";
+      p.statusLine = p.id === "you" ? "ваш пульс ещё принадлежит вам" : (p.id === "mold" ? "пробует анте на вкус" : "проверяет соединение");
+    }
+
+    G.player.hand[0].visible = true;
+    G.player.hand[1].visible = true;
+    G.bots.forEach((b, i) => {
+      if (b.hand[0]) b.hand[0].visible = true;
+      if (b.hand[1]) b.hand[1].visible = false;
+    });
+
+    G.revealAll = false;
+    G.dealAt = performance.now();
+    updateHUD();
+    updateActionContext();
+    setActionsEnabled(false);
+    showNextAction(false);
+    setVoice(`Слух откашливает ${roman(G.round)}-й вдох. ${G.law.desc}`);
+    $("roundNow").textContent = pad2(G.round);
+    $("targetHint").classList.add("hidden");
+    G.fx.eye = 1;
+
+    for (let i = 0; i < 5; i++) setTimeout(() => Sound.deal(i), i * 145);
+
+    const roundSpeech = {
+      mold: {
+        mirror: "Зеркало? Наконец мои отражения сойдутся в цене.",
+        inverse: "Побеждает худший? Наконец-то мой сорт.",
+        famine: "Пары... Я их и так плохо перевариваю.",
+        gravity: "Тяжесть. Мои споры идут на дно.",
+        whisper: "Шёпот. Я всегда знал, что вы пахнете парой.",
+        greed: "Двойное анте. Стол проголодался."
+      },
+      lady: {
+        mirror: "Отражение — это я, но без задержки.",
+        inverse: "Худшая рука? Наконец, справедливость.",
+        famine: "Голод — это когда тебя нет в запросе.",
+        gravity: "Всё падает. Даже мой статус.",
+        whisper: "Я и так не была скрыта. Просто не отрисована.",
+        greed: "Анте растёт. Пять — простое число. Я нервничаю."
+      }
+    };
+    await sleep(850);
+    if (G.law.id === "whisper") {
+      for (const b of G.bots) if (b.alive && b.hand[1]) b.hiddenRevealed = true;
+      G.peekUsed = true;
+      toast("ВСЕ ТАЙНЫ ПРОЗРАЧНЫ", "ЗАКОН ШЁПОТА");
+      Sound.reveal();
+    } else {
+      toast(`${G.law.num}. ${G.law.title}`, "ЗАКОН ВДОХА");
+    }
+    await sleep(700);
+    if (G.law.id === "greed") {
+      toast("АНТЕ СЪЕДЕНО ДВАЖДЫ", "ЗАКОН ЖАДНОСТИ");
+      Sound.chip();
+    }
+    for (const b of G.bots) {
+      if (!b.alive) continue;
+      const line = (roundSpeech[b.id] && roundSpeech[b.id][G.law.id]) || choice(b.speech);
+      speak(b, line, 3300);
+      b.state = b.id === "mold" ? "облизывается" : "мигает";
+      b.statusLine = b.id === "mold" ? "закон одобрен желудком" : "реальность обновлена с задержкой";
+    }
+    updateHUD();
+    await sleep(650);
+    if (G.mode !== "playing") return;
+    G.phase = "player";
+    G.busy = false;
+    refreshInteractionState();
+    setVoice("Ваш ход. Помните: карта Реальности в центре — общая. Пока что.");
+    if (G.law.id === "inverse") {
+      setVoice("Ваш ход. Сейчас полезно проигрывать. Стол считает это иронией.");
+    }
+  }
+
+  function mutateCard(card) {
+    if (!card) return null;
+    const next = mkCard();
+    card.rank = next.rank;
+    card.rankLabel = next.rankLabel;
+    card.suit = next.suit;
+    card.color = next.color;
+    card.dark = next.dark;
+    card.mutatedAt = performance.now();
+    return card;
+  }
+
+  function beginCheat() {
+    if (G.phase !== "player" || G.busy || G.cheatUsed || G.player.pulse < 1) return;
+    G.busy = true;
+    G.phase = "targeting";
+    G.targetMode = true;
+    G.pendingTarget = true;
+    setActionsEnabled(false);
+    $("targetHint").classList.remove("hidden");
+    setVoice("Вы тянетесь к краю реальности. Выберите карту, которую колода перепишет. Это будет стоить 1 пульс.");
+    toast("СМУТА", "ВЫБЕРИТЕ КАРТУ НА СТОЛЕ");
+    glitchBurst(1);
+    Sound.glitch();
+    speak(G.bots[0], "Пахнет жульничеством. Продолжайте.", 2600);
+    updateHUD();
+  }
+
+  function cancelCheat() {
+    if (!G.targetMode) return;
+    G.targetMode = false;
+    G.pendingTarget = false;
+    G.busy = false;
+    G.phase = "player";
+    $("targetHint").classList.add("hidden");
+    setVoice("Вы передумали. Колода сделала вид, что не заметила.");
+    refreshInteractionState();
+    updateHUD();
+  }
+
+  function resolveCheat(target) {
+    if (!G.targetMode || G.phase !== "targeting" || !target) return;
+    const card = target.type === "reality" ? G.reality : (target.type === "you" ? G.player.hand[target.index] : null);
+    if (!card) return;
+    G.targetMode = false;
+    G.pendingTarget = false;
+    $("targetHint").classList.add("hidden");
+    G.cheatUsed = true;
+    G.phase = "bots";
+    G.busy = true;
+    payPulse(G.player, 1);
+    G.stats.mutations += 1;
+    const before = serialiseCard(card);
+    mutateCard(card);
+    if (target.type === "reality") G.reality = card;
+    Sound.noise(.2, .07, 900, .5);
+    Sound.tone(70, .45, "sawtooth", .035, -45);
+    glitchBurst(1.4);
+    shakeStage(1);
+    toast("КОЛОДА ПЕРЕПИСАЛА ПАМЯТЬ", before === serialiseCard(card) ? "НИЧЕГО НЕ ИЗМЕНИЛОСЬ. ЭТО ПОДОЗРИТЕЛЬНО." : "НОВАЯ КАРТА УЖЕ ЗДЕСЬ");
+    speak(G.bots[0], "Вы только что съели чужую строчку. Мне знаком этот вкус.", 3100);
+    setVoice("Пульс ушёл колоде. Карта изменилась. Слух делает вид, что ослеп.");
+    updateHUD();
+    setActionsEnabled(false);
+    setTimeout(() => resolveAfterCheat(), 920);
+  }
+
+  function serialiseCard(card) {
+    return card ? `${card.rank}${card.suit}${card.mutatedAt || 0}` : "";
+  }
+
+  async function resolveAfterCheat() {
+    if (G.mode !== "playing") return;
+    await sleep(280);
+    for (const b of G.bots) {
+      if (b.alive) {
+        b.state = b.id === "mold" ? "принюхивается к вашей смуте" : "проверяет логи";
+        b.statusLine = b.id === "mold" ? "жульничество пахнет знакомо" : "// подозрение: 78%";
+      }
+    }
+    updateHUD();
+    await sleep(550);
+    await runShowdown();
+  }
+
+  function beginPeek() {
+    if (G.phase !== "player" || G.busy || G.peekUsed || G.player.pulse < 1) return;
+    const candidates = hiddenCandidates();
+    if (!candidates.length) return;
+    G.busy = true;
+    G.phase = "bots";
+    G.peekUsed = true;
+    G.stats.peeks += 1;
+    payPulse(G.player, 1);
+    const bot = choice(candidates);
+    bot.hiddenRevealed = true;
+    bot.flipAt = performance.now();
+    bot.mood = "angry";
+    Sound.reveal();
+    glitchBurst(.5);
+    updateHUD();
+    toast("ВЫ ПОДСЛУШАЛИ ТАЙНУ", bot.name + " НЕ ОДОБРЯЕТ");
+    setVoice(`Вы платите 1 пульс за чужие секреты. Тайная карта ${bot.name} открыта.`);
+    if (bot.id === "mold") {
+      speak(bot, "УБЕРИТЕ ЭТОТ СВЕТ! У меня от него появляются внуки.", 3300);
+      bot.statusLine = "страдает от света";
+      bot.state = "щурится";
+    } else {
+      speak(bot, "Вы посмотрели прямо. Теперь мне придётся исчезнуть на два хода.", 3300);
+      bot.statusLine = "// прямое наблюдение обнаружено";
+      bot.state = "мерцает";
+    }
+    updateHUD();
+    setTimeout(() => {
+      if (G.mode !== "playing") return;
+      G.busy = false;
+      G.phase = "player";
+      refreshInteractionState();
+      setVoice("Подслушано. Пульс списан. Стыд — бесплатно.");
+      updateHUD();
+    }, 1000);
+  }
+
+  async function beginBet() {
+    if (G.phase !== "player" || G.busy || G.player.pulse < 2) return;
+    G.busy = true;
+    G.phase = "bots";
+    payPulse(G.player, 2);
+    G.stats.lastBet = 2;
+    Sound.chip();
+    shakeStage(.55);
+    setActionsEnabled(false);
+    updateHUD();
+    setVoice("Вы бросаете 2 пульса в мембрану. Стол вздрагивает сильнее вас.");
+    toast("СТАВКА ПРИНЯТА", "БОТЫ РЕШАЮТ, ВЕРЯТ ЛИ ОНИ");
+    await sleep(700);
+    await botResponses("bet");
+    if (G.mode !== "playing" || G.phase === "over") return;
+    const aliveBots = G.bots.filter(b => b.alive && !b.folded);
+    if (!aliveBots.length) {
+      await collectUncontested(G.player);
+      return;
+    }
+    await runShowdown();
+  }
+
+  async function beginCheck() {
+    if (G.phase !== "player" || G.busy) return;
+    G.busy = true;
+    G.phase = "bots";
+    setActionsEnabled(false);
+    setVoice("Вы не двигаетесь. Слух считает это ставкой на невидимое.");
+    if (chance(.6)) {
+      const b = choice(G.bots.filter(x => x.alive));
+      if (b) speak(b, b.id === "mold" ? "Смело. Пахнет просроченной уверенностью." : "Вы пропустили запрос. Я уже ответила.", 2400);
+    }
+    updateHUD();
+    await sleep(900);
+    if (G.mode !== "playing") return;
+    await runShowdown();
+  }
+
+  async function beginFold() {
+    if (G.phase !== "player" || G.busy) return;
+    G.busy = true;
+    G.phase = "bots";
+    G.player.folded = true;
+    G.player.statusLine = "сбросил карты";
+    G.stats.folds += 1;
+    setActionsEnabled(false);
+    Sound.noise(.2, .04, 700, .6);
+    setVoice("Вы сбрасываете карты. Они шепчут вам вслед что-то на языке старых долгов.");
+    speak(choice(G.bots.filter(b => b.alive)), "Разумно. Некоторые ответы лучше не слышать.", 2600);
+    updateHUD();
+    await sleep(950);
+    if (G.mode !== "playing") return;
+    await runShowdown();
+  }
+
+  function botConfidence(bot) {
+    const ev = evaluateHand([...bot.hand, G.reality]);
+    let confidence = clamp((ev.score - 120) / 820, 0, 1);
+    if (G.law && G.law.id === "inverse") confidence = 1 - confidence;
+    if (bot.id === "lady" && prime(G.pot)) confidence -= .18;
+    if (bot.id === "mold" && G.pot >= 9) confidence += .08;
+    return clamp(confidence + rand(-.13, .13), 0, 1);
+  }
+
+  async function botResponses(mode) {
+    G.phase = "bots";
+    for (const bot of G.bots) {
+      if (!bot.alive) continue;
+      G.activeBot = bot.id;
+      bot.mood = "thinking";
+      botState(bot, bot.id === "mold" ? "пережёвывает мысль" : "загружает уверенность", bot.id === "mold" ? "оценивает вашу ставку на вкус" : "// сомнение 51%");
+      await sleep(550 + Math.random() * 380);
+
+      if (mode === "bet") {
+        let confidence = botConfidence(bot);
+        const wantsCheat = confidence < .33 && !bot.cheatUsed && chance(bot.id === "mold" ? .58 : .44);
+        if (wantsCheat) {
+          bot.cheatUsed = true;
+          if (bot.id === "mold") {
+            const old = bot.hand[1];
+            bot.hand[1] = drawCardFromDeck();
+            bot.hand[1].visible = true;
+            bot.hand[1].mutatedAt = performance.now();
+            bot.hiddenRevealed = true;
+            speak(bot, "Эта карта была недопечена. Сейчас я её выплюну обратно.", 3200);
+            toast("БАРОН СЪЕЛ ТАЙНУ", "И ВЕРНУЛ ДРУГУЮ");
+            bot.statusLine = "переваривает тайную карту";
+            Sound.noise(.3, .07, 430, .7);
+          } else {
+            const copy = { ...G.reality, uid: cardUID++, born: performance.now(), mutatedAt: performance.now(), visible: true };
+            bot.hand[1] = copy;
+            bot.hiddenRevealed = true;
+            speak(bot, "Соединение восстановлено из кэша. Это не карта. Это копия карты.", 3300);
+            toast("ЛЕДИ 404 ВОССТАНОВИЛАСЬ", "ИЗ ПУСТОТЫ. ИЗ КЭША.");
+            bot.statusLine = "// реальность подменена";
+            Sound.noise(.23, .06, 1800, .7);
+          }
+          glitchBurst(1.1);
+          shakeStage(.8);
+          bot.hand[1].flipAt = performance.now();
+          updateHUD();
+          await sleep(850);
+          confidence = botConfidence(bot);
+        }
+
+        let callChance;
+        if (bot.id === "mold") callChance = clamp(.22 + confidence * .95, .12, .94);
+        else callChance = clamp(.16 + confidence * .88 + (prime(G.pot) ? -.13 : 0), .1, .92);
+        const calls = Math.random() < callChance;
+
+        if (calls) {
+          const paid = payPulse(bot, 2);
+          bot.state = bot.id === "mold" ? "уравнял и облизнулся" : "уравняла с задержкой";
+          bot.statusLine = bot.id === "mold" ? "ставит на вкус вашего страха" : "// отклик получен";
+          bot.mood = "call";
+          Sound.chip();
+          updateHUD();
+          const callLines = bot.id === "mold" ? [
+            "Я чувствую вашу ставку на языке. Двойная порция, пожалуйста.",
+            "Уравниваю. Мои споры уже сделали ставку.",
+            "Эта карта пахнет вашей уверенностью. Я её съем."
+          ] : [
+            "Уравниваю. Соединение нестабильно, но достаточно.",
+            "Пакет дошёл. Проверяю... вы блефуете.",
+            "Я не отключилась. Я просто была на паузе."
+          ];
+          speak(bot, choice(callLines), 2900);
+          if (paid < 2) setVoice(`${bot.name} уходит в ноль, но всё равно уравнивает. Стол не считает это самоубийством.`);
+        } else {
+          bot.folded = true;
+          bot.state = bot.id === "mold" ? "сбросил и занюхал" : "потеряла соединение";
+          bot.statusLine = bot.id === "mold" ? "выплёвывает вашу ложь" : "// 404: рука не найдена";
+          bot.mood = "fold";
+          G.stats.botFolds += 1;
+          updateHUD();
+          const foldLines = bot.id === "mold" ? [
+            "Нет. Эта ложь слишком свежая. Я сброшу.",
+            "Я не голоден до ваших чужих карт.",
+            "Уберите. Пахнет вашей будущей потерей."
+          ] : [
+            "Я сбрасываю. Или меня здесь нет. Проверьте позже.",
+            "Соединение потеряно. Считайте, что я не отвечала.",
+            "Вы дёрнули не ту реальность. Я выхожу."
+          ];
+          speak(bot, choice(foldLines), 2900);
+        }
+        if (bot.id === "lady" && prime(G.pot) && chance(.45)) {
+          speak(bot, "Банк — простое число. Я чувствую себя посчитанной до конца.", 2850);
+          bot.statusLine = "// тревога: простой банк";
+        }
+        await sleep(650);
+      }
+      bot.mood = "idle";
+    }
+    G.activeBot = null;
+    updateHUD();
+  }
+
+  async function collectUncontested(winner) {
+    G.phase = "showdown";
+    G.showdownDone = true;
+    G.busy = true;
+    setActionsEnabled(false);
+    const amount = G.pot;
+    winner.pulse += amount;
+    winner.maxPulse = Math.max(winner.maxPulse, winner.pulse);
+    G.pot = 0;
+    G.roundWinner = winner.id;
+    G.stats.wins += winner.id === "you" ? 1 : 0;
+    G.revealAll = true;
+    for (const p of G.players) {
+      p.flipAt = performance.now();
+      if (p.alive) p.showEval = true;
+    }
+    updateHUD();
+    Sound.win();
+    shakeStage(.7);
+    toast(winner.id === "you" ? "ВЫ ЗАБИРАЕТЕ БАНК" : "БАНК СЪЕДЕН", `${amount} ПУЛЬСА · ВСЕ ПОВЕРИЛИ ЛЖИ`);
+    setVoice(winner.id === "you" ? "Все сбросили. Вы выиграли банк, не показав ни одной карты. Слух записывает это как шедевр." : `${winner.name} забирает банк, пока остальные сбрасывают. Стол делает вид, что не заметил.`);
+    await sleep(1600);
+    await finishRound();
+  }
+
+  async function runShowdown() {
+    if (G.mode !== "playing") return;
+    G.phase = "showdown";
+    G.busy = true;
+    G.revealAll = false;
+    G.showdownDone = false;
+    setActionsEnabled(false);
+    actionDeck.classList.remove("next-mode");
+    setVoice("Слух приподнимает веко. Карты больше не могут прятаться.");
+    Sound.reveal();
+    for (const p of G.players) if (p.alive) p.flipAt = performance.now();
+    await sleep(520);
+    G.revealAll = true;
+    for (const p of G.players) {
+      if (!p.alive) continue;
+      p.flipAt = performance.now();
+    }
+    shakeStage(.2);
+    await sleep(760);
+
+    const realityMoves = G.mode === "playing" && chance(.68);
+    if (realityMoves) {
+      const before = serialiseCard(G.reality);
+      mutateCard(G.reality);
+      G.reality.flipAt = performance.now();
+      G.showdownAt = performance.now();
+      glitchBurst(1.5);
+      shakeStage(1.3);
+      toast("СУДОРОГА РЕАЛЬНОСТИ", "ОБЩАЯ КАРТА УЖЕ НЕ ТА");
+      Sound.glitch();
+      setVoice("Карта Реальности судорожно меняется. Ваша рука становится чужим воспоминанием. Слух говорит: так честнее.");
+      updateHUD();
+      await sleep(1250);
+    }
+
+    const contenders = G.players.filter(p => p.alive && !p.folded && p.hand.length === 2);
+    for (const p of G.players) {
+      if (!p.hand.length) continue;
+      p.evalResult = evaluateHand([...p.hand, G.reality]);
+      p.showEval = p.alive;
+    }
+    if (!contenders.length) {
+      await finishRound();
+      return;
+    }
+
+    let winners = [contenders[0]];
+    for (let i = 1; i < contenders.length; i++) {
+      const candidate = contenders[i];
+      const cmp = compareHands(candidate.evalResult, winners[0].evalResult, G.law);
+      if (cmp > 0) winners = [candidate];
+      else if (cmp === 0) winners.push(candidate);
+    }
+
+    const isPlayerWinner = winners.some(p => p.id === "you");
+    if (isPlayerWinner) {
+      G.roundWinner = "you";
+      G.stats.wins += 1;
+    } else {
+      G.roundWinner = winners[0].id;
+    }
+
+    const total = G.pot;
+    const share = Math.floor(total / winners.length);
+    const burned = total - share * winners.length;
+    G.pot = 0;
+    for (const w of winners) {
+      w.pulse += share;
+      w.maxPulse = Math.max(w.maxPulse, w.pulse);
+    }
+    updateHUD();
+    await sleep(880);
+
+    if (isPlayerWinner) {
+      Sound.win();
+      shakeStage(.9);
+      toast(winners.length > 1 ? "СЛУХ НЕ СМОГ ВЫБРАТЬ" : "ВЫ ЗАБИРАЕТЕ ПУЛЬС", `${share} ПУЛЬСА · ${winners[0].evalResult.name}`);
+      setVoice(`Ваша рука: ${winners[0].evalResult.name}, резонанс ${winners[0].evalResult.score}. Банк ваш. Слух кашляет. Это, вероятно, аплодисменты.`);
+    } else {
+      Sound.lose();
+      shakeStage(1.1);
+      const w = winners[0];
+      toast(winners.length > 1 ? "БАНК РАЗДЕЛИЛСЯ" : "ПУЛЬС УТЁК", `${share} ПУЛЬСА · ${w.evalResult.name}`);
+      setVoice(`${w.name} забирает банк с рукой «${w.evalResult.name}», резонанс ${w.evalResult.score}. Ваши карты аккуратно складывают в чужой карман.`);
+    }
+    if (burned > 0) {
+      setVoice($("voiceText").textContent + ` Сдача ${burned} пульса исчезла под столом.`);
+    }
+
+    for (const b of G.bots) {
+      if (!b.alive) continue;
+      if (winners.includes(b)) {
+        speak(b, b.id === "mold" ? "Ваш проигрыш был слегка пересолен. Спасибо." : "Банк получен. Задержка была художественной.", 3100);
+        b.statusLine = b.id === "mold" ? "доволен послевкусием" : "// банк синхронизирован";
+      } else if (!b.folded) {
+        speak(b, b.id === "mold" ? "Я потерял пульс, но приобрёл новый вкус." : "Это был не проигрыш. Это рассинхронизация.", 3100);
+        b.statusLine = b.id === "mold" ? "считает ваши пульсы" : "// ошибка 402";
+      }
+    }
+    updateHUD();
+    await sleep(2150);
+    if (G.mode !== "playing") return;
+    G.showdownDone = true;
+    await finishRound();
+  }
+
+  async function finishRound() {
+    if (G.mode !== "playing") return;
+    for (const p of G.players) {
+      if (p.pulse <= 0 && p.alive) {
+        p.alive = false;
+        p.pulse = 0;
+        p.state = "стал(а) картой";
+        p.statusLine = p.id === "you" ? "ваш пульс закончился" : "колода приняла нового гостя";
+        if (p.id === "mold") speak(p, "Я всегда мечтал стать частью колоды. Не этой, но всё же.", 3300);
+        if (p.id === "lady") speak(p, "Наконец-то меня отрисовали. Как карту.", 3300);
+      }
+    }
+    updateHUD();
+    G.busy = true;
+    G.phase = "roundEnd";
+
+    if (!G.player.alive) {
+      await sleep(600);
+      endGame("card");
+      return;
+    }
+    const aliveBots = G.bots.filter(b => b.alive);
+    if (aliveBots.length === 0) {
+      await sleep(700);
+      endGame("last");
+      return;
+    }
+    if (G.round >= G.maxRounds) {
+      await sleep(900);
+      finishMatchByPulse();
+      return;
+    }
+
+    G.busy = false;
+    G.phase = "roundEnd";
+    showNextAction(true);
+    setVoice("Вдох закончен. Слух поднимает карты, чтобы перетасовать вашу память. Готовы к следующему?");
+    updateActionContext();
+    updateHUD();
+  }
+
+  function finishMatchByPulse() {
+    if (G.mode !== "playing") return;
+    const alive = G.players.filter(p => p.alive);
+    const player = G.player;
+    const maxPulse = Math.max(...alive.map(p => p.pulse));
+    const playerBest = player.alive && player.pulse >= maxPulse;
+    endGame(playerBest ? "pulse" : "lostPulse");
+  }
+
+  function endGame(reason) {
+    if (G.mode === "over") return;
+    G.mode = "over";
+    G.phase = "over";
+    G.busy = true;
+    G.targetMode = false;
+    $("targetHint").classList.add("hidden");
+    setActionsEnabled(false);
+    showNextAction(false);
+    actionDeck.classList.add("inert");
+
+    const end = $("endScreen");
+    const title = $("endTitle");
+    const kicker = $("endKicker");
+    const text = $("endText");
+    let won = false;
+    if (reason === "card") {
+      kicker.textContent = "ПУЛЬС 00 · КОЛОДА 01";
+      title.innerHTML = "ВЫ — <span>КАРТА</span>.";
+      text.textContent = "Ваш пульс закончился. Слух аккуратно замешал вас между Двойкой Червей и чьей-то нежной ложью. Теперь вы будете приходить кому-то во сне. Масть пока не решили.";
+      Sound.lose();
+    } else if (reason === "last") {
+      won = true;
+      kicker.textContent = "ПОСЛЕДНИЙ ГОСТЬ ЗА СТОЛОМ";
+      title.innerHTML = "СТОЛ <span>ВАШ</span>.";
+      text.textContent = "Оба соперника стали картами. Барон шелестит в колоде, Леди 404 удалила себя из протокола. Вы остались единственным, у кого ещё есть сердцебиение. Слух называет это совпадением.";
+      Sound.win();
+    } else if (reason === "pulse") {
+      won = true;
+      kicker.textContent = "ПЯТЬ ВДОХОВ ВЫДЕРЖАНЫ";
+      title.innerHTML = "ВЫ ОСТАЛИСЬ <span>СОБОЙ</span>.";
+      text.textContent = "Пять вдохов, ни одной честной раздачи. У вас больше всех пульса. Слух делает вид, что не разочарован. Барон просит сохранить вашу руку на память. Леди 404 уже отрицает, что была здесь.";
+      Sound.win();
+    } else {
+      kicker.textContent = "ПУЛЬС ЕСТЬ, СТОЛА НЕТ";
+      title.innerHTML = "ВЫ УХОДИТЕ <span>ТИХО</span>.";
+      text.textContent = "Пять вдохов прошли. Пульса хватило на жизнь, но не на победу. Плесень и отсутствие оказались убедительнее. Ваш стул всё ещё тёплый. Он будет ждать.";
+      Sound.lose();
+    }
+    $("endPulse").textContent = Math.max(0, Math.round(G.player.pulse));
+    $("endPeak").textContent = Math.max(0, Math.round(G.player.maxPulse));
+    $("endRounds").textContent = `${Math.min(G.round, G.maxRounds)} / ${G.maxRounds}`;
+    end.classList.remove("hidden");
+    $("startScreen").classList.add("hidden");
+    if (won) glitchBurst(.7);
+  }
+
+  function newGame() {
+    Sound.init();
+    if (Sound.ctx && Sound.ctx.state === "suspended") Sound.ctx.resume();
+    G.mode = "playing";
+    G.phase = "deal";
+    G.round = 0;
+    G.pot = 0;
+    G.law = null;
+    G.prevLaw = null;
+    G.reality = null;
+    G.roundWinner = null;
+    G.busy = true;
+    G.stats = { wins: 0, folds: 0, mutations: 0, peeks: 0, botFolds: 0, showdowns: 0 };
+    G.fx = { shake: 0, glitch: 0, eye: 1, heartbeat: 0 };
+    G.timers = [];
+    makePlayers();
+    targetHint.classList.add("hidden");
+    actionDeck.classList.remove("next-mode", "inert");
+    $("startScreen").classList.add("hidden");
+    $("endScreen").classList.add("hidden");
+    $("helpPanel").classList.add("hidden");
+    $("roundNow").textContent = "00";
+    $("potValue").textContent = "0";
+    $("playerPulse").textContent = "12";
+    $("voiceText").textContent = "Стол ждёт вашего первого вздоха.";
+    updateHUD();
+    setVoice("Вы садитесь. Мембрана прогибается под вами, как чужая совесть.");
+    setTimeout(() => startRound(), 300);
+  }
+
+  /* ============================================================
+     CANVAS: МИР, КАРТЫ, ПОРТРЕТЫ, ЭФФЕКТЫ
+     ============================================================ */
+
+  const mouse = { x: 800, y: 430, sx: 800, sy: 430, active: false };
+  const bgMotes = Array.from({ length: 82 }, () => ({
+    x: rand(0, W), y: rand(0, H), r: rand(.5, 2.1), a: rand(.08, .48),
+    vx: rand(-4, 4), vy: rand(-8, -2), phase: rand(0, 6.28), hue: chance(.18)
+  }));
+  const ghostCards = Array.from({ length: 8 }, (_, i) => ({
+    x: i < 4 ? rand(-70, 260) : rand(1340, 1670),
+    y: rand(90, 760), s: rand(.45, 1.05), rot: rand(-.9, .9),
+    drift: rand(.12, .4), phase: rand(0, 6.28), a: rand(.025, .085)
+  }));
+  const particles = [];
+  const spores = [];
+  const glitchBits = [];
+  const floatingWhispers = [];
+  let lastFrame = performance.now();
+  let worldTime = 0;
+  let nextSpore = 0;
+  let nextWhisper = 0;
+  let curCursor = "default";
+
+  const CARD_LAYOUT = {
+    you: [
+      { x: 712, y: 632, w: 146, h: 198, r: -.055 },
+      { x: 888, y: 632, w: 146, h: 198, r: .06 }
+    ],
+    mold: [
+      { x: 465, y: 390, w: 103, h: 146, r: -.13 },
+      { x: 560, y: 380, w: 103, h: 146, r: -.01 }
+    ],
+    lady: [
+      { x: 1040, y: 380, w: 103, h: 146, r: .012 },
+      { x: 1135, y: 390, w: 103, h: 146, r: .13 }
+    ],
+    reality: { x: 800, y: 404, w: 127, h: 174, r: .012 }
+  };
+
+  const WHISPERS = [
+    "НЕ СМОТРИТЕ НА ЕГО РУКУ",
+    "СТОЛ ЗАБЫЛ ВАШЕ ИМЯ",
+    "СЛУХ ОБЛИЗНУЛСЯ",
+    "КТО-ТО ПОД СТОЛОМ ДЫШИТ",
+    "ВЫ УЖЕ ПРОИГРАЛИ. НЕ СЕЙЧАС.",
+    "МЕМБРАНА ДЫШИТ",
+    "КАРТА РЕАЛЬНОСТИ УСТАЛА",
+    "ПУЛЬС? ПРОСТОЕ ЧИСЛО...",
+    "НЕ СЧИТАЙТЕ ВСЛУХ",
+    "КОЛОДА ПОМНИТ ЭТОТ ЖЕСТ",
+    "У СТОЛА ЗАКОНЧИЛИСЬ СЛОВА",
+    "ВАША ТЕНЬ СДЕЛАЛА СТАВКУ",
+    "ПЛЕСЕНЬ ПРОСИТ ЕЩЁ ОДИН ВДОХ",
+    "ЛЕДИ 404 НЕ ОТРИСОВАНА. НО СМОТРИТ.",
+    "ТИШИНА ПАХНЕТ ВАШИМ ПУЛЬСОМ",
+    "ЭТО НЕ БЛЕФ. ЭТО ДИАГНОЗ"
+  ];
+
+  function randSeed() { return Math.random(); }
+
+  function rr(x, y, w, h, r = 10) {
+    const rad = Math.min(r, w / 2, h / 2);
+    ctx.beginPath();
+    ctx.moveTo(x + rad, y);
+    ctx.arcTo(x + w, y, x + w, y + h, rad);
+    ctx.arcTo(x + w, y + h, x, y + h, rad);
+    ctx.arcTo(x, y + h, x, y, rad);
+    ctx.arcTo(x, y, x + w, y, rad);
+    ctx.closePath();
+  }
+
+  function wrapText(text, maxWidth, font) {
+    if (font) ctx.font = font;
+    const lines = [];
+    const paragraphs = String(text).split("\n");
+    for (const para of paragraphs) {
+      const words = para.split(" ");
+      let line = "";
+      for (const word of words) {
+        const test = line ? line + " " + word : word;
+        if (ctx.measureText(test).width > maxWidth && line) {
+          lines.push(line);
+          line = word;
+        } else {
+          line = test;
+        }
+      }
+      if (line) lines.push(line);
+    }
+    return lines;
+  }
+
+  function toneColor(tone) {
+    return {
+      cyan: "#63f6ff", hot: "#ff3d8f", acid: "#c8ff68",
+      violet: "#b19bff", gold: "#f1c66e"
+    }[tone] || "#c8ff68";
+  }
+
+  function drawSuitIcon(suitId, x, y, s, color) {
+    const c = color || "#d72b5c";
+    ctx.save();
+    ctx.translate(x, y);
+    ctx.strokeStyle = c;
+    ctx.fillStyle = c;
+    ctx.lineCap = "round";
+    ctx.lineJoin = "round";
+    ctx.lineWidth = Math.max(1.2, s * .09);
+    if (suitId === "eye") {
+      ctx.beginPath();
+      ctx.moveTo(-s * .58, 0);
+      ctx.bezierCurveTo(-s * .3, -s * .43, s * .3, -s * .43, s * .58, 0);
+      ctx.bezierCurveTo(s * .3, s * .43, -s * .3, s * .43, -s * .58, 0);
+      ctx.closePath();
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.arc(0, 0, s * .2, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.beginPath();
+      ctx.arc(s * .02, -s * .045, s * .065, 0, Math.PI * 2);
+      ctx.fillStyle = "rgba(255,255,255,.75)";
+      ctx.fill();
+    } else if (suitId === "worm") {
+      ctx.beginPath();
+      ctx.moveTo(-s * .52, -s * .28);
+      ctx.bezierCurveTo(-s * .15, -s * .65, s * .18, s * .12, s * .42, -s * .18);
+      ctx.bezierCurveTo(s * .62, -s * .42, s * .28, -s * .62, s * .02, -s * .44);
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.arc(s * .43, -s * .16, s * .11, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.beginPath();
+      ctx.arc(s * .49, -s * .22, s * .035, 0, Math.PI * 2);
+      ctx.fillStyle = "#f4e7cd";
+      ctx.fill();
+    } else if (suitId === "key") {
+      ctx.beginPath();
+      ctx.arc(0, -s * .25, s * .26, 0, Math.PI * 2);
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.moveTo(0, 0);
+      ctx.lineTo(0, s * .56);
+      ctx.moveTo(0, s * .4);
+      ctx.lineTo(s * .25, s * .4);
+      ctx.moveTo(0, s * .53);
+      ctx.lineTo(s * .16, s * .53);
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.arc(0, -s * .25, s * .07, 0, Math.PI * 2);
+      ctx.fill();
+    } else {
+      ctx.beginPath();
+      ctx.arc(-s * .06, 0, s * .43, Math.PI * .32, Math.PI * 1.68, false);
+      ctx.bezierCurveTo(s * .2, -s * .25, s * .35, -s * .12, s * .47, -s * .05);
+      ctx.bezierCurveTo(s * .26, s * .02, s * .14, s * .11, s * .02, s * .31);
+      ctx.closePath();
+      ctx.fill();
+      ctx.fillStyle = "rgba(255,255,255,.18)";
+      ctx.beginPath();
+      ctx.arc(-s * .18, -s * .16, s * .06, 0, Math.PI * 2);
+      ctx.fill();
+    }
+    ctx.restore();
+  }
+
+  function drawBackground(t) {
+    ctx.fillStyle = "#050409";
+    ctx.fillRect(-30, -30, W + 60, H + 60);
+
+    const bloom1 = ctx.createRadialGradient(800 + Math.sin(t * .06) * 80, 350, 10, 800, 380, 680);
+    bloom1.addColorStop(0, "rgba(73,40,75,.22)");
+    bloom1.addColorStop(.42, "rgba(23,37,30,.12)");
+    bloom1.addColorStop(1, "rgba(3,2,6,0)");
+    ctx.fillStyle = bloom1;
+    ctx.fillRect(0, 0, W, H);
+
+    const bloom2 = ctx.createRadialGradient(230, 710, 20, 260, 660, 540);
+    bloom2.addColorStop(0, "rgba(74,96,27,.13)");
+    bloom2.addColorStop(1, "rgba(0,0,0,0)");
+    ctx.fillStyle = bloom2;
+    ctx.fillRect(0, 0, W, H);
+
+    const bloom3 = ctx.createRadialGradient(1400, 600, 30, 1380, 580, 520);
+    bloom3.addColorStop(0, "rgba(127,24,70,.11)");
+    bloom3.addColorStop(1, "rgba(0,0,0,0)");
+    ctx.fillStyle = bloom3;
+    ctx.fillRect(0, 0, W, H);
+
+    // Призрачная рука-дилер над столом.
+    ctx.save();
+    ctx.globalAlpha = .1 + .03 * Math.sin(t * .8) + G.fx.eye * .035;
+    const handX = 800, handY = -20;
+    ctx.translate(handX, handY);
+    ctx.rotate(Math.sin(t * .17) * .018);
+    const sleeve = ctx.createLinearGradient(0, -140, 0, 180);
+    sleeve.addColorStop(0, "rgba(0,0,0,0)");
+    sleeve.addColorStop(.5, "rgba(196,183,164,.8)");
+    sleeve.addColorStop(1, "rgba(104,88,74,.1)");
+    ctx.fillStyle = sleeve;
+    ctx.beginPath();
+    ctx.moveTo(-54, -120);
+    ctx.bezierCurveTo(-120, -10, -112, 110, -46, 150);
+    ctx.bezierCurveTo(-4, 176, 50, 164, 70, 103);
+    ctx.bezierCurveTo(84, 57, 56, -28, 44, -120);
+    ctx.closePath();
+    ctx.fill();
+    for (let i = 0; i < 5; i++) {
+      ctx.save();
+      ctx.rotate((i - 2) * .045 + Math.sin(t * .6 + i) * .012);
+      ctx.strokeStyle = "rgba(218,203,183,.65)";
+      ctx.lineWidth = 12;
+      ctx.lineCap = "round";
+      ctx.beginPath();
+      ctx.moveTo((i - 2) * 20, 125);
+      ctx.quadraticCurveTo((i - 2) * 28, 205 + Math.sin(t * .5 + i) * 10, (i - 2) * 23, 260 + i * 5);
+      ctx.stroke();
+      ctx.restore();
+    }
+    ctx.beginPath();
+    ctx.arc(0, 43, 8, 0, Math.PI * 2);
+    ctx.fillStyle = "rgba(255,61,143,.65)";
+    ctx.fill();
+    ctx.restore();
+
+    // Огромный глаз в глубине сна.
+    drawDeepEye(800, 285, 315, 112, t);
+
+    // Частицы пыли, спор и далёких пульсов.
+    for (const m of bgMotes) {
+      const x = (m.x + t * m.vx) % (W + 80);
+      const y = (m.y + t * m.vy + 900) % 980;
+      ctx.beginPath();
+      ctx.fillStyle = m.hue ? `rgba(255,79,142,${m.a})` : `rgba(193,255,134,${m.a * .62})`;
+      ctx.arc(x, y, m.r, 0, Math.PI * 2);
+      ctx.fill();
+    }
+
+    // Забытые карты, плавающие в пустоте.
+    for (const c of ghostCards) {
+      const driftX = Math.sin(t * c.drift + c.phase) * 18;
+      const driftY = Math.cos(t * c.drift * .7 + c.phase) * 12;
+      ctx.save();
+      ctx.globalAlpha = c.a;
+      ctx.translate(c.x + driftX, c.y + driftY);
+      ctx.rotate(c.rot + Math.sin(t * .08 + c.phase) * .04);
+      ctx.scale(c.s, c.s);
+      ctx.fillStyle = "#221c20";
+      ctx.strokeStyle = "rgba(239,230,210,.38)";
+      ctx.lineWidth = 1.4;
+      rr(-48, -68, 96, 136, 6);
+      ctx.fill();
+      ctx.stroke();
+      drawSuitIcon(choice(["eye", "moon", "worm", "key"]), 0, 22, 31, "rgba(239,230,210,.28)");
+      ctx.restore();
+    }
+
+    const vig = ctx.createRadialGradient(800, 460, 240, 800, 460, 860);
+    vig.addColorStop(0, "rgba(0,0,0,0)");
+    vig.addColorStop(1, "rgba(2,1,5,.66)");
+    ctx.fillStyle = vig;
+    ctx.fillRect(0, 0, W, H);
+  }
+
+  function drawDeepEye(cx, cy, rx, ry, t) {
+    const blinkCycle = t % 9.4;
+    let openness = 1;
+    if (blinkCycle > 8.4 && blinkCycle < 9.05) openness = Math.abs(Math.cos((blinkCycle - 8.4) / .65 * Math.PI));
+    if (openness < .08) openness = .08;
+    const lookX = clamp((mouse.sx - cx) / 420, -1, 1);
+    const lookY = clamp((mouse.sy - cy) / 300, -1, 1);
+    ctx.save();
+    ctx.globalAlpha = .16;
+    const aura = ctx.createRadialGradient(cx, cy, 30, cx, cy, rx * 1.25);
+    aura.addColorStop(0, "rgba(255,61,143,.19)");
+    aura.addColorStop(.42, "rgba(104,75,117,.08)");
+    aura.addColorStop(1, "rgba(0,0,0,0)");
+    ctx.fillStyle = aura;
+    ctx.beginPath();
+    ctx.ellipse(cx, cy, rx * 1.3, ry * 2.4, 0, 0, Math.PI * 2);
+    ctx.fill();
+
+    ctx.scale(1, openness);
+    ctx.beginPath();
+    ctx.moveTo(cx - rx, cy);
+    ctx.bezierCurveTo(cx - rx * .52, cy - ry * 1.35, cx + rx * .48, cy - ry * 1.28, cx + rx, cy);
+    ctx.bezierCurveTo(cx + rx * .4, cy + ry * 1.1, cx - rx * .5, cy + ry * 1.15, cx - rx, cy);
+    ctx.closePath();
+    ctx.fillStyle = "rgba(218,201,196,.09)";
+    ctx.fill();
+    ctx.strokeStyle = "rgba(236,221,205,.2)";
+    ctx.lineWidth = 2;
+    ctx.stroke();
+    const irisX = cx + lookX * 65;
+    const irisY = cy + lookY * 28;
+    const ir = ry * .58;
+    const iris = ctx.createRadialGradient(irisX, irisY, 2, irisX, irisY, ir);
+    iris.addColorStop(0, "rgba(255,227,160,.7)");
+    iris.addColorStop(.22, "rgba(200,255,104,.32)");
+    iris.addColorStop(.53, "rgba(255,61,143,.16)");
+    iris.addColorStop(1, "rgba(39,13,28,0)");
+    ctx.fillStyle = iris;
+    ctx.beginPath();
+    ctx.arc(irisX, irisY, ir, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillStyle = "rgba(5,3,8,.9)";
+    ctx.beginPath();
+    ctx.ellipse(irisX, irisY, ir * .19, ir * .45, 0, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillStyle = "rgba(255,255,255,.5)";
+    ctx.beginPath();
+    ctx.arc(irisX - ir * .18, irisY - ir * .22, ir * .07, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.restore();
+  }
+
+  function drawTable(t) {
+    const cx = 800, cy = 535, rx = 664, ry = 304;
+    ctx.save();
+    const outerGlow = ctx.createRadialGradient(cx, cy, 160, cx, cy, 730);
+    outerGlow.addColorStop(0, "rgba(83,126,90,.07)");
+    outerGlow.addColorStop(.66, "rgba(64,102,72,.045)");
+    outerGlow.addColorStop(1, "rgba(0,0,0,0)");
+    ctx.fillStyle = outerGlow;
+    ctx.beginPath();
+    ctx.ellipse(cx, cy, rx * 1.1, ry * 1.12, 0, 0, Math.PI * 2);
+    ctx.fill();
+
+    // живая неровная мембрана
+    ctx.beginPath();
+    const points = 88;
+    for (let i = 0; i <= points; i++) {
+      const a = i / points * Math.PI * 2;
+      const wob = Math.sin(a * 7 + t * .45) * 4 + Math.sin(a * 13 - t * .27) * 2.2 + Math.sin(a * 3 + t * .2) * 5;
+      const x = cx + Math.cos(a) * (rx + wob);
+      const y = cy + Math.sin(a) * (ry + wob * .55);
+      if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+    }
+    ctx.closePath();
+    const felt = ctx.createRadialGradient(cx - 100, cy - 170, 60, cx, cy, 740);
+    felt.addColorStop(0, "rgba(28,48,39,.88)");
+    felt.addColorStop(.42, "rgba(13,28,23,.92)");
+    felt.addColorStop(.82, "rgba(7,16,13,.96)");
+    felt.addColorStop(1, "rgba(3,7,6,.98)");
+    ctx.fillStyle = felt;
+    ctx.shadowColor = "rgba(0,0,0,.9)";
+    ctx.shadowBlur = 48;
+    ctx.shadowOffsetY = 30;
+    ctx.fill();
+    ctx.shadowBlur = 0;
+    ctx.shadowOffsetY = 0;
+    ctx.strokeStyle = "rgba(184,209,150,.28)";
+    ctx.lineWidth = 2;
+    ctx.stroke();
+    ctx.strokeStyle = "rgba(255,61,143,.1)";
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.ellipse(cx, cy + 6, rx - 20, ry - 14, 0, 0, Math.PI * 2);
+    ctx.stroke();
+
+    // вены
+    for (let i = 0; i < 17; i++) {
+      const a = i / 17 * Math.PI * 2 + Math.sin(t * .05 + i) * .025;
+      const startR = 100 + (i % 4) * 24;
+      const endR = 420 + (i % 3) * 90;
+      const x1 = cx + Math.cos(a) * startR;
+      const y1 = cy + Math.sin(a) * startR * .46;
+      const x2 = cx + Math.cos(a + .04) * endR;
+      const y2 = cy + Math.sin(a + .04) * endR * .45;
+      const mx = (x1 + x2) / 2 + Math.sin(a * 3 + i) * 40;
+      const my = (y1 + y2) / 2 + Math.cos(a * 2 + i) * 30;
+      ctx.beginPath();
+      ctx.moveTo(x1, y1);
+      ctx.quadraticCurveTo(mx, my, x2, y2);
+      ctx.strokeStyle = i % 3 === 0 ? "rgba(104,161,106,.12)" : "rgba(201,218,168,.055)";
+      ctx.lineWidth = i % 4 === 0 ? 1.4 : .65;
+      ctx.stroke();
+    }
+
+    // пульс стола
+    const pulse = .5 + .5 * Math.sin(t * 1.2);
+    ctx.beginPath();
+    ctx.ellipse(cx, cy, 75 + pulse * 10, 34 + pulse * 4, 0, 0, Math.PI * 2);
+    ctx.strokeStyle = `rgba(255,61,143,${.08 + pulse * .08})`;
+    ctx.lineWidth = 1;
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.ellipse(cx, cy, 135, 62, 0, 0, Math.PI * 2);
+    ctx.strokeStyle = "rgba(200,255,104,.045)";
+    ctx.lineWidth = .8;
+    ctx.stroke();
+
+    // печать в центре / глаз под картой реальности
+    drawTableEye(cx, 410, 177, 80, t);
+
+    // прошивка по краю
+    ctx.save();
+    ctx.globalAlpha = .25;
+    ctx.setLineDash([2, 15]);
+    ctx.lineDashOffset = -t * 8;
+    ctx.strokeStyle = "rgba(239,230,210,.5)";
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.ellipse(cx, cy, rx - 24, ry - 20, 0, 0, Math.PI * 2);
+    ctx.stroke();
+    ctx.restore();
+
+    // мелкие глаза по краю мембраны
+    for (let i = 0; i < 5; i++) {
+      const a = [0.2, 1.13, 2.55, 3.6, 5.2][i];
+      const ex = cx + Math.cos(a) * (rx - 55);
+      const ey = cy + Math.sin(a) * (ry - 38);
+      const blink = (t * .04 + i * 1.7) % 1;
+      const open = blink > .96 ? .1 : 1;
+      ctx.save();
+      ctx.translate(ex, ey);
+      ctx.rotate(a);
+      ctx.scale(1, open);
+      ctx.strokeStyle = "rgba(210,198,172,.28)";
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.ellipse(0, 0, 17, 6, 0, 0, Math.PI * 2);
+      ctx.stroke();
+      ctx.fillStyle = "rgba(200,255,104,.32)";
+      ctx.beginPath();
+      ctx.arc(0, 0, 2.3, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.restore();
+    }
+    ctx.restore();
+  }
+
+  function drawTableEye(cx, cy, rx, ry, t) {
+    const blinkPhase = (t % 7 + 2) / 7;
+    let open = 1;
+    if (blinkPhase > .92) open = Math.max(.08, Math.abs(Math.cos((blinkPhase - .92) / .08 * Math.PI)));
+    ctx.save();
+    ctx.globalAlpha = .32;
+    ctx.translate(cx, cy);
+    ctx.scale(1, open);
+    const g = ctx.createRadialGradient(0, 0, 4, 0, 0, rx);
+    g.addColorStop(0, "rgba(255,61,143,.45)");
+    g.addColorStop(.35, "rgba(200,255,104,.12)");
+    g.addColorStop(1, "rgba(0,0,0,0)");
+    ctx.fillStyle = g;
+    ctx.beginPath();
+    ctx.ellipse(0, 0, rx, ry, 0, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.strokeStyle = "rgba(230,221,199,.17)";
+    ctx.lineWidth = 1.2;
+    ctx.beginPath();
+    ctx.ellipse(0, 0, rx * .92, ry * .8, 0, 0, Math.PI * 2);
+    ctx.stroke();
+    for (let i = 0; i < 9; i++) {
+      const a = i / 9 * Math.PI * 2 + t * .06;
+      ctx.beginPath();
+      ctx.moveTo(Math.cos(a) * rx * .2, Math.sin(a) * ry * .2);
+      ctx.quadraticCurveTo(
+        Math.cos(a + .12) * rx * .6, Math.sin(a + .12) * ry * .6,
+        Math.cos(a) * rx * .88, Math.sin(a) * ry * .8
+      );
+      ctx.strokeStyle = "rgba(200,255,104,.07)";
+      ctx.stroke();
+    }
+    ctx.restore();
+  }
+
+  function drawPot(t) {
+    if (!G.mode || G.mode === "menu") return;
+    const amount = G.pot;
+    ctx.save();
+    const pulse = .5 + .5 * Math.sin(t * 2.1);
+    ctx.translate(800, 274);
+    const glow = ctx.createRadialGradient(0, 0, 4, 0, 0, 105);
+    glow.addColorStop(0, `rgba(241,198,110,${.12 + Math.min(amount, 15) * .008})`);
+    glow.addColorStop(.5, "rgba(241,198,110,.035)");
+    glow.addColorStop(1, "rgba(0,0,0,0)");
+    ctx.fillStyle = glow;
+    ctx.beginPath();
+    ctx.arc(0, 0, 105, 0, Math.PI * 2);
+    ctx.fill();
+
+    for (let i = 0; i < 3; i++) {
+      ctx.beginPath();
+      ctx.ellipse(0, 4, 42 + i * 14 + pulse * 3, 13 + i * 5 + pulse, 0, 0, Math.PI * 2);
+      ctx.strokeStyle = `rgba(241,198,110,${.24 - i * .055})`;
+      ctx.lineWidth = 1;
+      ctx.stroke();
+    }
+    ctx.textAlign = "center";
+    ctx.fillStyle = "rgba(166,157,143,.76)";
+    ctx.font = "10px 'Courier New', monospace";
+    ctx.fillText("БАНК", 0, -38);
+    ctx.fillStyle = "#f1c66e";
+    ctx.font = "34px Georgia, serif";
+    ctx.fillText(String(amount).padStart(2, "0"), 0, 5);
+    ctx.fillStyle = "rgba(255,61,143,.9)";
+    ctx.font = "15px Georgia, serif";
+    ctx.fillText("♥", 38, -6);
+    const chips = Math.min(10, amount);
+    for (let i = 0; i < chips; i++) {
+      const a = i / chips * Math.PI * 2 + t * .18;
+      const r = 61 + (i % 2) * 11;
+      ctx.beginPath();
+      ctx.arc(Math.cos(a) * r, Math.sin(a) * r * .55, 2 + (i % 3), 0, Math.PI * 2);
+      ctx.fillStyle = i % 2 ? "rgba(200,255,104,.6)" : "rgba(255,61,143,.56)";
+      ctx.fill();
+    }
+    ctx.restore();
+  }
+
+  function drawLaw(t) {
+    if (!G.law) return;
+    const accent = toneColor(G.law.tone);
+    const x = 800, y = 77, w = 430, h = 125;
+    ctx.save();
+    ctx.globalAlpha = .8;
+    ctx.strokeStyle = "rgba(239,230,210,.2)";
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(x - 52, 0); ctx.lineTo(x - 43, y + 5);
+    ctx.moveTo(x + 52, 0); ctx.lineTo(x + 43, y + 5);
+    ctx.stroke();
+    ctx.globalAlpha = 1;
+    ctx.shadowColor = "rgba(0,0,0,.75)";
+    ctx.shadowBlur = 28;
+    ctx.shadowOffsetY = 12;
+    ctx.beginPath();
+    ctx.moveTo(x - w / 2, y);
+    ctx.lineTo(x + w / 2, y);
+    ctx.lineTo(x + w / 2 - 10, y + h);
+    ctx.lineTo(x + 14, y + h - 5);
+    ctx.lineTo(x - 5, y + h + 3);
+    ctx.lineTo(x - w / 2 + 8, y + h);
+    ctx.closePath();
+    const paper = ctx.createLinearGradient(x - w / 2, y, x + w / 2, y + h);
+    paper.addColorStop(0, "#18151a");
+    paper.addColorStop(.5, "#0e0d12");
+    paper.addColorStop(1, "#171318");
+    ctx.fillStyle = paper;
+    ctx.fill();
+    ctx.shadowBlur = 0;
+    ctx.shadowOffsetY = 0;
+    ctx.strokeStyle = accent;
+    ctx.globalAlpha = .55;
+    ctx.stroke();
+    ctx.globalAlpha = .1;
+    ctx.fillStyle = accent;
+    ctx.fillRect(x - w / 2, y, w, 2);
+    ctx.fillRect(x - w / 2, y + h - 1, w, 1);
+    ctx.globalAlpha = 1;
+
+    ctx.textAlign = "center";
+    ctx.fillStyle = accent;
+    ctx.font = "9px 'Courier New', monospace";
+    ctx.fillText(`ЗАКОН ВДОХА · ${G.law.num} · СТОЛ ТРЕБУЕТ`, x, y + 19);
+    ctx.fillStyle = "#efe6d2";
+    ctx.font = "23px Georgia, 'Times New Roman', serif";
+    ctx.fillText(G.law.title, x, y + 50);
+    ctx.fillStyle = "rgba(221,210,190,.86)";
+    ctx.font = "12px 'Courier New', monospace";
+    const lines = wrapText(G.law.desc, w - 54, "12px 'Courier New', monospace").slice(0, 2);
+    lines.forEach((line, i) => ctx.fillText(line, x, y + 76 + i * 17));
+    ctx.fillStyle = accent;
+    ctx.globalAlpha = .65;
+    ctx.font = "9px 'Courier New', monospace";
+    ctx.fillText(`${G.law.detail}`, x, y + 111);
+    ctx.globalAlpha = 1;
+
+    // мелкая пульсация по краям
+    const pulse = .4 + .6 * Math.abs(Math.sin(t * 1.4));
+    ctx.strokeStyle = accent;
+    ctx.globalAlpha = .22 * pulse;
+    ctx.beginPath();
+    ctx.moveTo(x - w / 2 + 22, y + h - 7);
+    ctx.lineTo(x - w / 2 + 88, y + h - 7);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(x + w / 2 - 88, y + h - 7);
+    ctx.lineTo(x + w / 2 - 22, y + h - 7);
+    ctx.stroke();
+    ctx.restore();
+  }
+
+  function cardFaceUp(player, index) {
+    if (!player) return true;
+    if (!player.hand[index]) return false;
+    if (player.id === "you") return true;
+    if (G.revealAll) return true;
+    if (index === 0) return true;
+    return !!player.hiddenRevealed;
+  }
+
+  function drawCardBack(x, y, w, h, rot, scale = 1, alpha = 1) {
+    ctx.save();
+    ctx.translate(x, y);
+    ctx.rotate(rot);
+    ctx.scale(scale, scale);
+    ctx.globalAlpha = alpha;
+    ctx.shadowColor = "rgba(0,0,0,.8)";
+    ctx.shadowBlur = 24;
+    ctx.shadowOffsetY = 12;
+    const g = ctx.createLinearGradient(-w / 2, -h / 2, w / 2, h / 2);
+    g.addColorStop(0, "#2e2039");
+    g.addColorStop(.48, "#130f1a");
+    g.addColorStop(1, "#251322");
+    ctx.fillStyle = g;
+    rr(-w / 2, -h / 2, w, h, 8);
+    ctx.fill();
+    ctx.shadowBlur = 0;
+    ctx.shadowOffsetY = 0;
+    ctx.strokeStyle = "rgba(241,198,110,.54)";
+    ctx.lineWidth = 1.25;
+    ctx.stroke();
+    ctx.strokeStyle = "rgba(239,230,210,.13)";
+    ctx.lineWidth = 1;
+    rr(-w / 2 + 6, -h / 2 + 6, w - 12, h - 12, 5);
+    ctx.stroke();
+
+    ctx.beginPath();
+    ctx.arc(0, 0, Math.min(w, h) * .24, 0, Math.PI * 2);
+    ctx.strokeStyle = "rgba(200,255,104,.18)";
+    ctx.lineWidth = .8;
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.arc(0, 0, Math.min(w, h) * .31, 0, Math.PI * 2);
+    ctx.setLineDash([1, 7]);
+    ctx.strokeStyle = "rgba(255,61,143,.3)";
+    ctx.stroke();
+    ctx.setLineDash([]);
+    drawSuitIcon("eye", 0, 0, Math.min(w, h) * .36, "rgba(241,198,110,.72)");
+    ctx.fillStyle = "rgba(239,230,210,.35)";
+    ctx.textAlign = "center";
+    ctx.font = `${Math.max(7, w * .048)}px 'Courier New', monospace`;
+    ctx.fillText("СЛУХ", 0, h * .38);
+    for (let i = 0; i < 4; i++) {
+      ctx.beginPath();
+      ctx.arc(-w * .25 + i * w * .17, -h * .38, 1, 0, Math.PI * 2);
+      ctx.fillStyle = "rgba(200,255,104,.4)";
+      ctx.fill();
+    }
+    ctx.restore();
+  }
+
+  function drawCardFace(card, x, y, w, h, rot, opts = {}) {
+    const isReality = !!opts.reality;
+    const targetable = !!opts.targetable;
+    const hovered = !!opts.hovered;
+    const accent = isReality ? "#63f6ff" : card.color;
+    ctx.save();
+    ctx.translate(x, y);
+    ctx.rotate(rot);
+    if (hovered) ctx.scale(1.045, 1.045);
+    ctx.shadowColor = hovered ? "rgba(241,198,110,.65)" : "rgba(0,0,0,.76)";
+    ctx.shadowBlur = hovered ? 35 : 22;
+    ctx.shadowOffsetY = 10;
+    const paper = ctx.createLinearGradient(-w / 2, -h / 2, w / 2, h / 2);
+    paper.addColorStop(0, "#eee2c9");
+    paper.addColorStop(.52, "#d9c9ad");
+    paper.addColorStop(1, "#bdac8d");
+    ctx.fillStyle = paper;
+    rr(-w / 2, -h / 2, w, h, w * .055);
+    ctx.fill();
+    ctx.shadowBlur = 0;
+    ctx.shadowOffsetY = 0;
+    ctx.strokeStyle = isReality ? accent : "rgba(47,35,28,.75)";
+    ctx.lineWidth = isReality ? 1.8 : 1.1;
+    ctx.stroke();
+
+    // общий watermark
+    ctx.save();
+    ctx.globalAlpha = .06;
+    drawSuitIcon(card.suit, 0, 0, Math.min(w, h) * .85, "#1f1a17");
+    ctx.restore();
+
+    if (isReality) {
+      ctx.fillStyle = "rgba(9,20,24,.94)";
+      ctx.fillRect(-w / 2 + 2, -h / 2 + 2, w - 4, h * .155);
+      ctx.fillStyle = "#63f6ff";
+      ctx.font = `${Math.max(7, w * .052)}px 'Courier New', monospace`;
+      ctx.textAlign = "center";
+      ctx.fillText("РЕАЛЬНОСТЬ", 0, -h / 2 + h * .075);
+    }
+
+    ctx.strokeStyle = "rgba(54,37,26,.34)";
+    ctx.lineWidth = .8;
+    rr(-w / 2 + 6, -h / 2 + 6, w - 12, h - 12, w * .04);
+    ctx.stroke();
+
+    const cornerX = -w / 2 + 12;
+    const cornerY = -h / 2 + (isReality ? 38 : 24);
+    ctx.textAlign = "left";
+    ctx.fillStyle = card.dark;
+    ctx.font = `700 ${Math.round(w * .215)}px Georgia, 'Times New Roman', serif`;
+    ctx.fillText(card.rankLabel, cornerX, cornerY + w * .12);
+    drawSuitIcon(card.suit, cornerX + w * .065, cornerY + w * .2, w * .105, card.color);
+
+    ctx.save();
+    ctx.translate(w / 2 - 13, h / 2 - (isReality ? 25 : 18));
+    ctx.rotate(Math.PI);
+    ctx.textAlign = "left";
+    ctx.fillStyle = card.dark;
+    ctx.font = `700 ${Math.round(w * .16)}px Georgia, 'Times New Roman', serif`;
+    ctx.fillText(card.rankLabel, 0, 0);
+    drawSuitIcon(card.suit, w * .048, w * .065, w * .08, card.color);
+    ctx.restore();
+
+    drawSuitIcon(card.suit, 0, isReality ? 10 : -2, Math.min(w, h) * (isReality ? .29 : .34), card.color);
+
+    ctx.textAlign = "center";
+    ctx.fillStyle = "rgba(66,51,38,.72)";
+    ctx.font = `${Math.max(6, w * .054)}px 'Courier New', monospace`;
+    ctx.fillText(card.suit === "eye" ? "СМОТРИТ" : card.suit === "worm" ? "ШЕВЕЛИТСЯ" : card.suit === "key" ? "ОТКРЫВАЕТ" : "ПОМНИТ", 0, h * .39);
+    const pseudo = `PU-${(card.uid % 89).toString().padStart(2, "0")}`;
+    ctx.fillStyle = "rgba(55,43,31,.38)";
+    ctx.font = `${Math.max(5, w * .042)}px 'Courier New', monospace`;
+    ctx.fillText(pseudo, 0, h / 2 - (isReality ? 11 : 9));
+
+    // уголки-украшения
+    ctx.strokeStyle = isReality ? "rgba(99,246,255,.65)" : "rgba(63,45,31,.4)";
+    ctx.lineWidth = .8;
+    const cs = w * .075;
+    ctx.beginPath();
+    ctx.moveTo(-w / 2 + 5, -h / 2 + 5 + cs); ctx.lineTo(-w / 2 + 5, -h / 2 + 5); ctx.lineTo(-w / 2 + 5 + cs, -h / 2 + 5);
+    ctx.moveTo(w / 2 - 5, h / 2 - 5 - cs); ctx.lineTo(w / 2 - 5, h / 2 - 5); ctx.lineTo(w / 2 - 5 - cs, h / 2 - 5);
+    ctx.stroke();
+
+    if (targetable) {
+      ctx.strokeStyle = hovered ? "#c8ff68" : "rgba(255,61,143,.8)";
+      ctx.lineWidth = hovered ? 3 : 1.4;
+      rr(-w / 2 - 4, -h / 2 - 4, w + 8, h + 8, 10);
+      ctx.stroke();
+      if (hovered) {
+        ctx.fillStyle = "rgba(200,255,104,.12)";
+        rr(-w / 2, -h / 2, w, h, 8);
+        ctx.fill();
+      }
+    }
+
+    const sinceMut = performance.now() - (card.mutatedAt || 0);
+    if (sinceMut < 1300) {
+      const alpha = 1 - sinceMut / 1300;
+      ctx.globalAlpha = alpha * .55;
+      for (let i = 0; i < 7; i++) {
+        const sy = -h / 2 + rand(0, h);
+        const sh = rand(1, 8);
+        ctx.drawImage(canvas,
+          0, clamp((clamp(mouse.sy, 0, H) + sy) * DPR, 0, canvas.height - 1),
+          canvas.width, Math.max(1, sh * DPR),
+          -w / 2 - rand(4, 15), sy, w + rand(8, 30), sh
+        );
+      }
+      ctx.globalAlpha = 1;
+      ctx.strokeStyle = `rgba(255,61,143,${alpha * .7})`;
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.moveTo(-w / 2, -h * .2 + rand(-10, 10));
+      ctx.lineTo(w / 2 + rand(-20, 20), h * .2 + rand(-10, 10));
+      ctx.stroke();
+    }
+    ctx.restore();
+  }
+
+  function handLayout(player) {
+    return CARD_LAYOUT[player.id] || CARD_LAYOUT.you;
+  }
+
+  function isTargetable(playerId, index) {
+    if (!G.targetMode) return false;
+    if (playerId === "you") return true;
+    if (playerId === "reality") return true;
+    return false;
+  }
+
+  function drawCardEntity(player, card, index, t) {
+    if (!card) return;
+    const layout = player ? handLayout(player)[index] : CARD_LAYOUT.reality;
+    if (!layout) return;
+    const hovered = G.targetMode && isTargetable(player ? player.id : "reality", index) && mouseOverRect(layout.x, layout.y, layout.w, layout.h, layout.r);
+    const dealDelta = performance.now() - (card.dealStamp || 0);
+    let p = 1;
+    if (card.dealStamp && dealDelta < 520) p = clamp(dealDelta / 520, 0, 1);
+    const eased = easeOut(p);
+    let x = layout.x, y = layout.y, rot = layout.r;
+    if (p < 1) {
+      const originX = 800, originY = 100;
+      x = lerp(originX, layout.x, eased);
+      y = lerp(originY, layout.y, eased) - Math.sin(eased * Math.PI) * 110;
+      rot = layout.r + (1 - eased) * (index % 2 ? .5 : -.5);
+    }
+    const scale = p < 1 ? lerp(.7, 1, eased) : 1;
+    const face = cardFaceUp(player, index);
+    let flipping = false;
+    let flipP = 1;
+    if (face && player && player.flipAt) {
+      const fd = t - player.flipAt;
+      if (fd >= 0 && fd < 440) {
+        flipping = true;
+        flipP = clamp(fd / 440, 0, 1);
+      }
+    }
+    if (face && card.flipAt) {
+      const fd = t - card.flipAt;
+      if (fd >= 0 && fd < 380) {
+        flipping = true;
+        flipP = clamp(fd / 380, 0, 1);
+      }
+    }
+    if (p < .98) {
+      drawCardBack(x, y, layout.w, layout.h, rot, scale, .98);
+    } else if (flipping) {
+      const backSide = flipP < .5;
+      const sx = Math.abs(1 - flipP * 2);
+      ctx.save();
+      ctx.translate(x, y);
+      ctx.rotate(rot);
+      ctx.scale(Math.max(.04, sx), 1);
+      if (backSide) drawCardBack(0, 0, layout.w, layout.h, 0, scale, 1);
+      else drawCardFace(card, 0, 0, layout.w, layout.h, 0, { reality: player === null });
+      ctx.restore();
+    } else if (face) {
+      drawCardFace(card, x, y, layout.w, layout.h, rot, {
+        reality: player === null || (player && player.realityTag),
+        targetable: G.targetMode && isTargetable(player ? player.id : "reality", index),
+        hovered
+      });
+    } else {
+      drawCardBack(x, y, layout.w, layout.h, rot, scale, 1);
+    }
+
+    if (G.targetMode && isTargetable(player ? player.id : "reality", index)) {
+      ctx.save();
+      ctx.translate(x, y);
+      const hs = Math.min(layout.w, layout.h) * .22;
+      ctx.fillStyle = hovered ? "#c8ff68" : "rgba(255,61,143,.88)";
+      ctx.beginPath();
+      ctx.arc(0, 0, hs, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.fillStyle = "#070508";
+      ctx.font = `700 ${Math.round(hs * .9)}px 'Courier New', monospace`;
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      ctx.fillText(player ? String(index + 1) : "Р", 0, 1);
+      ctx.restore();
+    }
+  }
+
+  function mouseOverRect(x, y, w, h, rot = 0) {
+    const dx = mouse.sx - x;
+    const dy = mouse.sy - y;
+    const cs = Math.cos(-rot), sn = Math.sin(-rot);
+    const lx = dx * cs - dy * sn;
+    const ly = dx * sn + dy * cs;
+    return Math.abs(lx) < w / 2 && Math.abs(ly) < h / 2;
+  }
+
+  function currentBot(id) {
+    return G.players.find(p => p.id === id) || null;
+  }
+
+  function drawBaron(t) {
+    const bot = currentBot("mold");
+    const alive = !bot || bot.alive;
+    const dead = bot && !bot.alive;
+    const speaking = bot && bot.speechUntil > performance.now();
+    const active = G.phase === "bots" && G.activeBot === "mold";
+    const x = 173, y = 432;
+    const breath = Math.sin(t * 1.15) * 2.6;
+    ctx.save();
+    ctx.translate(x, y + breath);
+    ctx.globalAlpha = dead ? .3 : 1;
+
+    if (active) {
+      const aura = ctx.createRadialGradient(0, -20, 10, 0, -20, 185);
+      aura.addColorStop(0, "rgba(157,255,159,.16)");
+      aura.addColorStop(1, "rgba(157,255,159,0)");
+      ctx.fillStyle = aura;
+      ctx.beginPath();
+      ctx.arc(0, -20, 185, 0, Math.PI * 2);
+      ctx.fill();
+    }
+
+    ctx.fillStyle = "rgba(0,0,0,.55)";
+    ctx.beginPath();
+    ctx.ellipse(0, 129, 110, 25, 0, 0, Math.PI * 2);
+    ctx.fill();
+
+    // смокинг
+    const suitGrad = ctx.createLinearGradient(-100, 20, 90, 135);
+    suitGrad.addColorStop(0, "#090b0c");
+    suitGrad.addColorStop(.55, "#171b18");
+    suitGrad.addColorStop(1, "#060708");
+    ctx.fillStyle = suitGrad;
+    ctx.beginPath();
+    ctx.moveTo(-48, 11);
+    ctx.bezierCurveTo(-84, 24, -94, 60, -102, 123);
+    ctx.lineTo(-34, 135);
+    ctx.quadraticCurveTo(0, 117, 34, 135);
+    ctx.lineTo(101, 121);
+    ctx.bezierCurveTo(94, 55, 78, 27, 46, 10);
+    ctx.closePath();
+    ctx.fill();
+    ctx.strokeStyle = "rgba(157,255,159,.1)";
+    ctx.lineWidth = 1;
+    ctx.stroke();
+
+    // рубашка и галстук
+    ctx.fillStyle = "#d5c7a9";
+    ctx.beginPath();
+    ctx.moveTo(-18, 10);
+    ctx.lineTo(-4, 88);
+    ctx.lineTo(4, 88);
+    ctx.lineTo(21, 10);
+    ctx.closePath();
+    ctx.fill();
+    ctx.fillStyle = "rgba(75,66,51,.5)";
+    for (let i = 0; i < 3; i++) {
+      ctx.beginPath();
+      ctx.arc(1, 27 + i * 15, 1.5, 0, Math.PI * 2);
+      ctx.fill();
+    }
+    ctx.fillStyle = "#1e2c16";
+    ctx.beginPath();
+    ctx.moveTo(-23, 14);
+    ctx.lineTo(-8, 10);
+    ctx.lineTo(-12, 30);
+    ctx.lineTo(-22, 27);
+    ctx.closePath();
+    ctx.fill();
+    ctx.beginPath();
+    ctx.moveTo(23, 14);
+    ctx.lineTo(8, 10);
+    ctx.lineTo(12, 30);
+    ctx.lineTo(22, 27);
+    ctx.closePath();
+    ctx.fill();
+    ctx.fillStyle = "#c8ff68";
+    ctx.beginPath();
+    ctx.moveTo(-7, 14); ctx.lineTo(0, 19); ctx.lineTo(7, 14); ctx.lineTo(3, 11); ctx.lineTo(-3, 11);
+    ctx.closePath(); ctx.fill();
+
+    // лацканы
+    ctx.fillStyle = "rgba(47,66,42,.38)";
+    ctx.beginPath();
+    ctx.moveTo(-46, 13); ctx.lineTo(-18, 35); ctx.lineTo(-35, 105); ctx.lineTo(-70, 109);
+    ctx.closePath(); ctx.fill();
+    ctx.beginPath();
+    ctx.moveTo(44, 13); ctx.lineTo(18, 35); ctx.lineTo(35, 105); ctx.lineTo(74, 106);
+    ctx.closePath(); ctx.fill();
+
+    // длинные пальцы
+    ctx.strokeStyle = "rgba(132,163,82,.75)";
+    ctx.lineWidth = 3.3;
+    ctx.lineCap = "round";
+    for (let i = 0; i < 3; i++) {
+      ctx.beginPath();
+      ctx.moveTo(-68, 70);
+      ctx.quadraticCurveTo(-94, 82 + i * 5, -103 - i * 3, 74 + i * 9);
+      ctx.stroke();
+    }
+    for (let i = 0; i < 3; i++) {
+      ctx.beginPath();
+      ctx.moveTo(68, 72);
+      ctx.quadraticCurveTo(97, 83 + i * 5, 105 + i * 2, 68 + i * 11);
+      ctx.stroke();
+    }
+
+    // шея
+    ctx.fillStyle = "#35451f";
+    ctx.beginPath();
+    ctx.ellipse(0, 1, 25, 17, 0, 0, Math.PI * 2);
+    ctx.fill();
+
+    // колония плесени
+    const headGrad = ctx.createRadialGradient(-25, -78, 5, 0, -44, 83);
+    headGrad.addColorStop(0, "#c0e58b");
+    headGrad.addColorStop(.32, "#799d53");
+    headGrad.addColorStop(.65, "#3f4f2d");
+    headGrad.addColorStop(1, "#202619");
+    ctx.fillStyle = headGrad;
+    const blobs = [
+      [-39, -30, 33], [18, -48, 43], [-9, -84, 36], [-50, -72, 29],
+      [45, -79, 25], [7, -17, 30], [-30, -9, 24], [40, -23, 23]
+    ];
+    for (const [bx, by, br] of blobs) {
+      const wob = Math.sin(t * .8 + bx) * 2.2;
+      ctx.beginPath();
+      ctx.arc(bx, by + wob, br, 0, Math.PI * 2);
+      ctx.fill();
+    }
+    // пятна плесени
+    const spots = [[-42, -68, 15], [20, -77, 11], [48, -45, 8], [-47, -23, 10], [10, -24, 14], [-8, -99, 8]];
+    for (let i = 0; i < spots.length; i++) {
+      const [sx, sy, sr] = spots[i];
+      ctx.fillStyle = i % 2 ? "rgba(215,245,164,.3)" : "rgba(126,76,139,.3)";
+      ctx.beginPath();
+      ctx.arc(sx, sy, sr, 0, Math.PI * 2);
+      ctx.fill();
+    }
+    // лицо
+    ctx.fillStyle = "rgba(16,18,13,.85)";
+    ctx.beginPath();
+    ctx.ellipse(4, -54, 31, 24, -.12, 0, Math.PI * 2);
+    ctx.fill();
+    // глаза
+    const look = G.ladyHud && G.activeBot === "mold" ? Math.sin(t * 2) * 2 : Math.sin(t * .5) * 1.7;
+    ctx.fillStyle = "#e7dfb6";
+    ctx.beginPath();
+    ctx.ellipse(-11, -58, 7, 4, -.08, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.beginPath();
+    ctx.ellipse(20, -60, 6, 3.5, .08, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillStyle = "#16160d";
+    ctx.beginPath(); ctx.arc(-10 + look, -58, 2.1, 0, Math.PI * 2); ctx.fill();
+    ctx.beginPath(); ctx.arc(21 + look, -60, 1.8, 0, Math.PI * 2); ctx.fill();
+    // монокль
+    ctx.strokeStyle = "rgba(219,190,112,.85)";
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.arc(21, -60, 13, 0, Math.PI * 2);
+    ctx.stroke();
+    ctx.strokeStyle = "rgba(219,190,112,.38)";
+    ctx.lineWidth = .8;
+    ctx.beginPath();
+    ctx.moveTo(33, -57);
+    ctx.bezierCurveTo(44, -39, 37, -18, 24, -13);
+    ctx.stroke();
+    // рот
+    const mouth = speaking ? 4 + Math.sin(t * 18) * 2 : 1.4;
+    ctx.strokeStyle = "rgba(225,211,167,.55)";
+    ctx.lineWidth = 1.1;
+    ctx.beginPath();
+    ctx.ellipse(2, -37, 10, mouth, .03, 0, Math.PI * 2);
+    ctx.stroke();
+    // шляпа
+    ctx.save();
+    ctx.translate(-4, -101);
+    ctx.rotate(-.09);
+    ctx.fillStyle = "#11140e";
+    ctx.beginPath();
+    ctx.ellipse(0, 0, 50, 12, 0, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.beginPath();
+    ctx.moveTo(-26, -2);
+    ctx.lineTo(-20, -49);
+    ctx.quadraticCurveTo(3, -58, 25, -47);
+    ctx.lineTo(29, 0);
+    ctx.closePath();
+    ctx.fill();
+    ctx.strokeStyle = "rgba(157,255,159,.24)";
+    ctx.beginPath();
+    ctx.moveTo(-21, -13);
+    ctx.lineTo(26, -13);
+    ctx.stroke();
+    ctx.fillStyle = "rgba(157,255,159,.3)";
+    ctx.fillRect(11, -28, 8, 4);
+    ctx.restore();
+    // парящие споры (отдельная система дорисует снаружи)
+    ctx.restore();
+  }
+
+  function drawLady(t) {
+    const bot = currentBot("lady");
+    const dead = bot && !bot.alive;
+    const speaking = bot && bot.speechUntil > performance.now();
+    const active = G.phase === "bots" && G.activeBot === "lady";
+    const x = 1428, y = 434;
+    const flicker = Math.sin(t * 3.1) > .955 ? .42 : 1;
+    const breath = Math.sin(t * .9 + 1.5) * 3;
+    ctx.save();
+    ctx.translate(x, y + breath);
+    ctx.globalAlpha = (dead ? .24 : 1) * flicker;
+
+    if (active) {
+      const aura = ctx.createRadialGradient(-20, -10, 10, -20, -10, 190);
+      aura.addColorStop(0, "rgba(255,61,143,.17)");
+      aura.addColorStop(1, "rgba(255,61,143,0)");
+      ctx.fillStyle = aura;
+      ctx.beginPath();
+      ctx.arc(-20, -10, 190, 0, Math.PI * 2);
+      ctx.fill();
+    }
+    ctx.fillStyle = "rgba(0,0,0,.55)";
+    ctx.beginPath();
+    ctx.ellipse(0, 135, 105, 24, 0, 0, Math.PI * 2);
+    ctx.fill();
+
+    // платье / тень
+    const dress = ctx.createLinearGradient(-90, 0, 60, 120);
+    dress.addColorStop(0, "#09070d");
+    dress.addColorStop(.5, "#1b0d18");
+    dress.addColorStop(1, "#060509");
+    ctx.fillStyle = dress;
+    ctx.beginPath();
+    ctx.moveTo(-31, 4);
+    ctx.bezierCurveTo(-74, 20, -102, 56, -96, 128);
+    ctx.lineTo(-27, 140);
+    ctx.lineTo(16, 126);
+    ctx.lineTo(88, 138);
+    ctx.bezierCurveTo(81, 59, 68, 19, 31, 6);
+    ctx.closePath();
+    ctx.fill();
+
+    // высокий воротник
+    ctx.fillStyle = "#100b12";
+    ctx.beginPath();
+    ctx.moveTo(-32, 4); ctx.lineTo(-88, -36); ctx.lineTo(-62, 45); ctx.lineTo(-21, 22);
+    ctx.closePath(); ctx.fill();
+    ctx.beginPath();
+    ctx.moveTo(32, 4); ctx.lineTo(86, -48); ctx.lineTo(59, 44); ctx.lineTo(22, 22);
+    ctx.closePath(); ctx.fill();
+    ctx.strokeStyle = "rgba(255,61,143,.25)";
+    ctx.lineWidth = 1;
+    ctx.stroke();
+
+    // шея
+    ctx.strokeStyle = "#d7c5b8";
+    ctx.lineWidth = 11;
+    ctx.lineCap = "round";
+    ctx.beginPath();
+    ctx.moveTo(0, 6);
+    ctx.quadraticCurveTo(5, -32, 1, -62);
+    ctx.stroke();
+    // плечи
+    ctx.fillStyle = "#d7c5b8";
+    ctx.beginPath();
+    ctx.ellipse(0, 3, 28, 14, 0, 0, Math.PI * 2);
+    ctx.fill();
+
+    // маска
+    ctx.save();
+    ctx.translate(0, -91);
+    ctx.rotate(-.025);
+    ctx.shadowColor = "rgba(255,61,143,.24)";
+    ctx.shadowBlur = 24;
+    ctx.fillStyle = "#e7ddd6";
+    ctx.beginPath();
+    ctx.moveTo(0, -37);
+    ctx.bezierCurveTo(34, -37, 40, -12, 33, 18);
+    ctx.bezierCurveTo(27, 43, 11, 48, 0, 47);
+    ctx.bezierCurveTo(-11, 48, -28, 43, -33, 18);
+    ctx.bezierCurveTo(-40, -12, -34, -37, 0, -37);
+    ctx.closePath();
+    ctx.fill();
+    ctx.shadowBlur = 0;
+    ctx.strokeStyle = "rgba(83,57,68,.38)";
+    ctx.lineWidth = 1;
+    ctx.stroke();
+    // глаза-пиксели
+    ctx.fillStyle = "#ff3d8f";
+    ctx.fillRect(-20, -4, 12, 3);
+    ctx.fillRect(9, -4, 12, 3);
+    ctx.globalAlpha *= .45;
+    ctx.fillRect(-20, 1, 12, 1);
+    ctx.fillRect(9, 1, 12, 1);
+    ctx.globalAlpha /= .45;
+    // загрузка на месте рта
+    ctx.fillStyle = "rgba(80,59,70,.52)";
+    ctx.fillRect(-16, 24, 32, 2);
+    ctx.fillStyle = "#63f6ff";
+    ctx.fillRect(-16, 24, 11 + Math.sin(t * 1.6) * 7 + 7, 2);
+    // корона из битых пикселей
+    for (let i = 0; i < 9; i++) {
+      const px = -42 + i * 10 + Math.sin(t * .7 + i) * 1.5;
+      const py = -50 - (i % 3) * 8;
+      ctx.fillStyle = i % 3 === 0 ? "#63f6ff" : i % 2 ? "#ff3d8f" : "#d8cbbd";
+      ctx.globalAlpha *= .7;
+      ctx.fillRect(px, py, 5, 7 + (i % 2) * 6);
+      ctx.globalAlpha /= .7;
+    }
+    // длинная вуаль из пикселей
+    ctx.strokeStyle = "rgba(255,61,143,.18)";
+    ctx.setLineDash([1, 8]);
+    ctx.beginPath();
+    ctx.moveTo(-40, -34);
+    ctx.lineTo(-72, 82);
+    ctx.moveTo(39, -34);
+    ctx.lineTo(66, 81);
+    ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.restore();
+
+    // рука с чашкой
+    ctx.strokeStyle = "#cdbcb0";
+    ctx.lineWidth = 7;
+    ctx.beginPath();
+    ctx.moveTo(-29, 25);
+    ctx.quadraticCurveTo(-66, 50, -68, 13);
+    ctx.stroke();
+    ctx.strokeStyle = "rgba(205,188,176,.5)";
+    ctx.lineWidth = 3.5;
+    for (let i = 0; i < 3; i++) {
+      ctx.beginPath();
+      ctx.moveTo(-68, 14);
+      ctx.lineTo(-78 - i * 4, 7 + i * 2);
+      ctx.stroke();
+    }
+    ctx.save();
+    ctx.translate(-78, 9);
+    ctx.fillStyle = "#110e12";
+    ctx.beginPath();
+    ctx.ellipse(0, 0, 14, 5, 0, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.strokeStyle = "rgba(239,230,210,.24)";
+    ctx.beginPath();
+    ctx.arc(13, 0, 6, -Math.PI * .5, Math.PI * .5);
+    ctx.stroke();
+    const cupEye = 1 + Math.sin(t * 2) * .2;
+    ctx.fillStyle = "rgba(99,246,255,.3)";
+    ctx.beginPath();
+    ctx.ellipse(0, -1, 8, 1.7 * cupEye, 0, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillStyle = "#ff3d8f";
+    ctx.beginPath();
+    ctx.arc(0, -1, 1.5, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.strokeStyle = "rgba(239,230,210,.18)";
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(-2, -7);
+    ctx.bezierCurveTo(-8, -18, 4, -22, -2, -34);
+    ctx.stroke();
+    ctx.restore();
+
+    // глитч-полосы
+    const glitchWindow = (t % 4.7) > 4.15;
+    if (glitchWindow || flicker < 1) {
+      for (let i = 0; i < 5; i++) {
+        const gy = -125 + i * 47 + rand(-8, 8);
+        const gx = rand(-30, 30);
+        ctx.fillStyle = i % 2 ? "rgba(255,61,143,.38)" : "rgba(99,246,255,.32)";
+        ctx.fillRect(-82 + gx, gy, rand(50, 145), rand(1, 4));
+      }
+    }
+    ctx.fillStyle = "rgba(255,61,143,.27)";
+    ctx.font = "8px 'Courier New', monospace";
+    ctx.textAlign = "center";
+    ctx.fillText("404 · НЕ ВИДНО", 0, 154);
+    ctx.restore();
+  }
+
+  function drawPlayerGhost(t) {
+    if (!G.player || G.mode === "menu") return;
+    ctx.save();
+    ctx.globalAlpha = .13 + Math.sin(t * 1.4) * .02;
+    ctx.fillStyle = "#e2d4bf";
+    ctx.strokeStyle = "#e2d4bf";
+    ctx.lineWidth = 1;
+    for (const side of [-1, 1]) {
+      ctx.beginPath();
+      ctx.moveTo(800 + side * 290, 900);
+      ctx.bezierCurveTo(800 + side * 270, 820, 800 + side * 228, 800, 800 + side * 180, 748);
+      ctx.bezierCurveTo(800 + side * 150, 715, 800 + side * 165, 700, 800 + side * 206, 720);
+      ctx.stroke();
+      for (let i = 0; i < 4; i++) {
+        ctx.beginPath();
+        ctx.moveTo(800 + side * 195, 738 + i * 2);
+        ctx.quadraticCurveTo(800 + side * (180 + i * 5), 755 + i * 4, 800 + side * (172 + i * 4), 770);
+        ctx.stroke();
+      }
+    }
+    // пульсирующая жила под картами
+    const pulse = .5 + .5 * Math.sin(t * 2.2);
+    ctx.globalAlpha = .06 + pulse * .05;
+    ctx.strokeStyle = "#ff3d8f";
+    ctx.lineWidth = 1.2;
+    ctx.beginPath();
+    ctx.moveTo(560, 786);
+    ctx.bezierCurveTo(690, 776, 900, 796, 1042, 782);
+    ctx.stroke();
+    ctx.restore();
+  }
+
+  function drawSpeechBubbles(t) {
+    const now = performance.now();
+    for (const bot of G.bots) {
+      if (!bot.speechText || now > bot.speechUntil) continue;
+      const lifeIn = clamp((now - bot.speechAt) / 170, 0, 1);
+      const lifeOut = clamp((bot.speechUntil - now) / 320, 0, 1);
+      const alpha = Math.min(lifeIn, lifeOut);
+      const left = bot.id === "mold";
+      const w = 258;
+      const x = left ? 270 : 1072;
+      const y = 217;
+      ctx.save();
+      ctx.globalAlpha = alpha;
+      ctx.font = "13px 'Courier New', monospace";
+      const lines = wrapText(bot.speechText, w - 26, "13px 'Courier New', monospace");
+      const bubbleH = 23 + lines.length * 16 + 9;
+      const jitter = bot.id === "lady" ? Math.sin(t * 26) * .6 : 0;
+      ctx.translate(jitter, 0);
+      ctx.fillStyle = "rgba(7,6,10,.94)";
+      ctx.strokeStyle = bot.id === "mold" ? "rgba(157,255,159,.48)" : "rgba(255,61,143,.53)";
+      ctx.lineWidth = 1;
+      rr(x, y, w, bubbleH, 3);
+      ctx.fill();
+      ctx.stroke();
+      ctx.fillStyle = bot.id === "mold" ? "rgba(157,255,159,.72)" : "rgba(255,61,143,.7)";
+      ctx.font = "8px 'Courier New', monospace";
+      ctx.textAlign = "left";
+      ctx.fillText(bot.id === "mold" ? "БАРОН · ГОВОРИТ С НАБИТЫМ РТОМ" : "ЛЕДИ 404 · ПАКЕТ ДОСТАВЛЕН", x + 12, y + 14);
+      ctx.fillStyle = "rgba(225,216,202,.9)";
+      ctx.font = "13px 'Courier New', monospace";
+      lines.forEach((line, i) => ctx.fillText(line, x + 13, y + 32 + i * 16));
+      ctx.beginPath();
+      if (left) {
+        ctx.moveTo(x + 40, y + bubbleH);
+        ctx.lineTo(x + 8, y + bubbleH + 12);
+        ctx.lineTo(x + 62, y + bubbleH);
+      } else {
+        ctx.moveTo(x + w - 52, y + bubbleH);
+        ctx.lineTo(x + w - 12, y + bubbleH + 12);
+        ctx.lineTo(x + w - 72, y + bubbleH);
+      }
+      ctx.closePath();
+      ctx.fillStyle = "rgba(7,6,10,.94)";
+      ctx.fill();
+      ctx.strokeStyle = bot.id === "mold" ? "rgba(157,255,159,.38)" : "rgba(255,61,143,.44)";
+      ctx.stroke();
+      ctx.restore();
+    }
+  }
+
+  function drawEvalBadge(player, x, y, width, t) {
+    if (!player.showEval || !player.evalResult) return;
+    const ev = player.evalResult;
+    const accent = player.id === "you" ? "#c8ff68" : player.id === "mold" ? "#9dff9f" : "#ff3d8f";
+    const folded = player.folded;
+    const winner = G.roundWinner === player.id && G.phase !== "deal" && G.phase !== "player" && G.phase !== "targeting";
+    const name = folded ? "СБРОШЕНО · РУКА НЕ УЧАСТВУЕТ" : ev.name;
+    const score = folded ? "" : ` · ${ev.score}`;
+    ctx.save();
+    ctx.globalAlpha = folded ? .5 : 1;
+    ctx.font = "11px 'Courier New', monospace";
+    const label = `${player.id === "you" ? "ВЫ" : player.id === "mold" ? "БАРОН" : "ЛЕДИ"} · ${name}${score}`;
+    const tw = Math.min(width, ctx.measureText(label).width + 34);
+    const px = x - tw / 2;
+    if (winner) {
+      ctx.shadowColor = accent;
+      ctx.shadowBlur = 18;
+    }
+    ctx.fillStyle = "rgba(7,6,10,.9)";
+    ctx.strokeStyle = winner ? accent : "rgba(239,230,210,.2)";
+    ctx.lineWidth = winner ? 1.5 : .8;
+    ctx.beginPath();
+    ctx.moveTo(px, y + 12);
+    ctx.lineTo(px + 12, y);
+    ctx.lineTo(px + tw - 12, y);
+    ctx.lineTo(px + tw, y + 12);
+    ctx.lineTo(px + tw - 12, y + 24);
+    ctx.lineTo(px + 12, y + 24);
+    ctx.closePath();
+    ctx.fill();
+    ctx.stroke();
+    ctx.shadowBlur = 0;
+    ctx.fillStyle = winner ? accent : "rgba(216,206,189,.9)";
+    ctx.textAlign = "center";
+    ctx.fillText(label, x, y + 16);
+    if (winner) {
+      ctx.globalAlpha = .5 + .5 * Math.sin(t * 3);
+      ctx.fillStyle = accent;
+      ctx.font = "9px 'Courier New', monospace";
+      ctx.fillText("РЕЗОНАНС СТОЛА", x, y - 9);
+    }
+    ctx.restore();
+  }
+
+  function drawHandsAndBoard(t) {
+    if (G.mode === "menu") {
+      drawMenuCards(t);
+      return;
+    }
+    if (!G.players.length) return;
+
+    // Карта Реальности.
+    if (G.reality) drawCardEntity(null, G.reality, 0, t);
+
+    // Карты ботов, затем игрока — рука ближе к зрителю.
+    for (const b of G.bots) {
+      const lay = handLayout(b);
+      b.hand.forEach((card, i) => {
+        if (card) drawCardEntity(b, card, i, t);
+      });
+      if (b.showEval && b.evalResult) {
+        drawEvalBadge(b, (lay[0].x + lay[1].x) / 2, 473, 290, t);
+      }
+      if (b.folded) {
+        ctx.save();
+        ctx.globalAlpha = .35;
+        ctx.fillStyle = "rgba(255,61,143,.65)";
+        ctx.font = "9px 'Courier New', monospace";
+        ctx.textAlign = "center";
+        ctx.fillText("СБРОШЕНО", (lay[0].x + lay[1].x) / 2, 463);
+        ctx.restore();
+      }
+    }
+    G.player.hand.forEach((card, i) => {
+      if (card) drawCardEntity(G.player, card, i, t);
+    });
+    if (G.player.showEval && G.player.evalResult) {
+      drawEvalBadge(G.player, 800, 508, 470, t);
+    }
+
+    // Общая подпись.
+    ctx.save();
+    ctx.textAlign = "center";
+    ctx.fillStyle = "rgba(99,246,255,.67)";
+    ctx.font = "9px 'Courier New', monospace";
+    ctx.fillText("ОБЩАЯ КАРТА РЕАЛЬНОСТИ · ОНА УЖЕ НЕ ТА", 800, 309);
+    ctx.restore();
+
+    if (G.player.folded) {
+      ctx.save();
+      ctx.textAlign = "center";
+      ctx.fillStyle = "rgba(255,61,143,.55)";
+      ctx.font = "9px 'Courier New', monospace";
+      ctx.fillText("ВЫ СБРОСИЛИ. НО СТОЛ ВСЁ ВИДИТ.", 800, 540);
+      ctx.restore();
+    }
+  }
+
+  function drawMenuCards(t) {
+    const cx = 800, cy = 410;
+    for (let i = 0; i < 5; i++) {
+      const a = i / 5 * Math.PI * 2 + t * .08;
+      const x = cx + Math.cos(a) * 215;
+      const y = cy + Math.sin(a) * 80;
+      ctx.save();
+      ctx.translate(x, y);
+      ctx.rotate(a + Math.PI / 2 + Math.sin(t * .5 + i) * .08);
+      ctx.globalAlpha = .24;
+      drawCardBack(0, 0, 88, 126, 0, 1, 1);
+      ctx.restore();
+    }
+  }
+
+  function drawHangingReality(t) {
+    if (G.mode === "menu" || !G.reality) return;
+    const active = G.showdownAt && performance.now() - G.showdownAt < 1700;
+    if (!active) return;
+    const elapsed = performance.now() - G.showdownAt;
+    const a = clamp(1 - elapsed / 1700, 0, 1);
+    ctx.save();
+    ctx.globalAlpha = a * .8;
+    ctx.strokeStyle = "#ff3d8f";
+    ctx.lineWidth = 1.7;
+    const cx = 800, cy = 404;
+    for (let i = 0; i < 9; i++) {
+      const ang = i / 9 * Math.PI * 2 + t * .4;
+      let px = cx + Math.cos(ang) * 44;
+      let py = cy + Math.sin(ang) * 36;
+      ctx.beginPath();
+      ctx.moveTo(px, py);
+      for (let j = 0; j < 4; j++) {
+        px += Math.cos(ang + rand(-.55, .55)) * rand(10, 35);
+        py += Math.sin(ang + rand(-.55, .55)) * rand(10, 35);
+        ctx.lineTo(px, py);
+      }
+      ctx.stroke();
+    }
+    ctx.globalAlpha = a * .45;
+    const flash = ctx.createRadialGradient(800, 404, 10, 800, 404, 230);
+    flash.addColorStop(0, "rgba(255,255,255,.4)");
+    flash.addColorStop(.28, "rgba(255,61,143,.18)");
+    flash.addColorStop(1, "rgba(0,0,0,0)");
+    ctx.fillStyle = flash;
+    ctx.fillRect(500, 100, 600, 600);
+    ctx.restore();
+  }
+
+  function spawnSpore() {
+    if (spores.length > 90) return;
+    const bot = currentBot("mold");
+    if (bot && !bot.alive) return;
+    spores.push({
+      x: 173 + rand(-67, 56), y: 340 + rand(-45, 30),
+      vx: rand(-9, 14), vy: rand(-14, -4), r: rand(.7, 2.5),
+      life: rand(2.8, 6.5), max: 0, a: rand(.2, .7),
+      ph: rand(0, 6.28), hot: chance(.22)
+    });
+    const s = spores[spores.length - 1]; s.max = s.life;
+  }
+
+  function spawnGlitchBit(fromLady = true) {
+    if (glitchBits.length > 100) return;
+    glitchBits.push({
+      x: (fromLady ? 1428 : 800) + rand(-90, 65),
+      y: 380 + rand(-110, 120),
+      w: rand(2, 16), h: rand(1, 3.5),
+      vx: rand(-24, 20), vy: rand(-30, -7), life: rand(.5, 1.8), max: 1.8,
+      color: chance(.55) ? "255,61,143" : "99,246,255"
+    });
+  }
+
+  function updateParticles(dt, now) {
+    if (now > nextSpore) {
+      spawnSpore();
+      nextSpore = now + rand(150, 470);
+    }
+    if (currentBot("lady") && currentBot("lady").alive && chance(dt * .014)) spawnGlitchBit(true);
+    if (currentBot("mold") && currentBot("mold").alive && chance(dt * .003)) spawnGlitchBit(false);
+
+    for (let i = spores.length - 1; i >= 0; i--) {
+      const s = spores[i];
+      s.life -= dt;
+      s.x += (s.vx + Math.sin(worldTime + s.ph) * 4) * dt;
+      s.y += s.vy * dt;
+      if (s.life <= 0) spores.splice(i, 1);
+    }
+    for (let i = glitchBits.length - 1; i >= 0; i--) {
+      const g = glitchBits[i];
+      g.life -= dt;
+      g.x += g.vx * dt; g.y += g.vy * dt;
+      if (g.life <= 0) glitchBits.splice(i, 1);
+    }
+    for (let i = particles.length - 1; i >= 0; i--) {
+      const p = particles[i];
+      p.life -= dt;
+      p.x += p.vx * dt;
+      p.y += p.vy * dt;
+      p.vy += p.gravity * dt;
+      p.vx *= .993;
+      if (p.life <= 0) particles.splice(i, 1);
+    }
+    for (let i = floatingWhispers.length - 1; i >= 0; i--) {
+      const f = floatingWhispers[i];
+      f.life -= dt;
+      f.y -= f.speed * dt;
+      if (f.life <= 0) floatingWhispers.splice(i, 1);
+    }
+  }
+
+  function spawnParticles(x, y, color, count, speed) {
+    for (let i = 0; i < count; i++) {
+      const a = rand(0, Math.PI * 2);
+      const v = rand(speed * .25, speed);
+      particles.push({
+        x, y, vx: Math.cos(a) * v, vy: Math.sin(a) * v - speed * .15,
+        gravity: rand(15, 35), life: rand(.4, 1.2), max: 1.2,
+        r: rand(1, 3.3), color
+      });
+    }
+  }
+
+  function drawParticles() {
+    for (const s of spores) {
+      const a = clamp(s.life / s.max, 0, 1) * s.a;
+      ctx.beginPath();
+      ctx.fillStyle = s.hot ? `rgba(177,155,255,${a})` : `rgba(187,231,133,${a})`;
+      ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
+      ctx.fill();
+    }
+    for (const g of glitchBits) {
+      ctx.fillStyle = `rgba(${g.color},${clamp(g.life / g.max, 0, 1) * .65})`;
+      ctx.fillRect(g.x, g.y, g.w, g.h);
+    }
+    for (const p of particles) {
+      const a = clamp(p.life / p.max, 0, 1);
+      ctx.fillStyle = `rgba(${p.color},${a})`;
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+      ctx.fill();
+    }
+  }
+
+  function spawnWhisper(text, x, y) {
+    floatingWhispers.push({
+      text, x, y, life: 4.2, max: 4.2, speed: rand(8, 17),
+      rot: rand(-.04, .04), color: chance(.55) ? "214,202,181" : "255,61,143"
+    });
+  }
+
+  function drawWhispers(t) {
+    for (const w of floatingWhispers) {
+      const a = clamp(Math.min((w.max - w.life) * 3, w.life), 0, 1) * .55;
+      ctx.save();
+      ctx.globalAlpha = a;
+      ctx.translate(w.x, w.y);
+      ctx.rotate(w.rot + Math.sin(t * .2 + w.x) * .01);
+      ctx.textAlign = "center";
+      ctx.fillStyle = `rgba(${w.color},.9)`;
+      ctx.font = "8px 'Courier New', monospace";
+      ctx.fillText(w.text, 0, 0);
+      ctx.restore();
+    }
+  }
+
+  function drawGlitchOverlay(t) {
+    if (G.fx.glitch <= .02) return;
+    const intensity = clamp(G.fx.glitch, 0, 2);
+    ctx.save();
+    ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+    for (let i = 0; i < 8; i++) {
+      if (Math.random() > .48) continue;
+      const y = rand(0, H);
+      const h = rand(1, 12);
+      ctx.fillStyle = i % 2 ? `rgba(255,61,143,${.025 * intensity})` : `rgba(99,246,255,${.022 * intensity})`;
+      ctx.fillRect(rand(-20, 30), y, W + rand(-40, 30), h);
+    }
+    ctx.globalAlpha = .06 + .04 * Math.sin(t * 38);
+    ctx.fillStyle = "#c8ff68";
+    ctx.fillRect(0, 0, W, H);
+    for (let i = 0; i < 14 * intensity; i++) {
+      ctx.fillStyle = i % 2 ? "rgba(255,61,143,.35)" : "rgba(99,246,255,.28)";
+      ctx.fillRect(rand(0, W), rand(0, H), rand(2, 40), 1);
+    }
+    ctx.restore();
+  }
+
+  function drawAmbientLabels(t) {
+    if (G.mode !== "playing") return;
+    ctx.save();
+    ctx.fillStyle = "rgba(216,206,189,.19)";
+    ctx.font = "8px 'Courier New', monospace";
+    ctx.textAlign = "left";
+    ctx.fillText("КАЗИНО «ВНУТРЕННЕЕ УХО» · ГЛУБИНА 404", 34, 225);
+    ctx.fillText(`СЛУХ · ВДОХ ${pad2(G.round)} · ${G.law ? G.law.num : "?"}`, 34, 240);
+    ctx.textAlign = "right";
+    ctx.fillText("НЕ СТАВЬТЕ БОЛЬШЕ, ЧЕМ У ВАС ЕСТЬ СЕРДЦА", W - 34, 225);
+    ctx.fillText(`РЕАЛЬНОСТЬ: ${G.law && G.law.id === "whisper" ? "ПРОЗРАЧНА" : "НЕСТАБИЛЬНА"}`, W - 34, 240);
+    ctx.restore();
+  }
+
+  function drawEndFade(now) {
+    if (G.mode !== "over") return;
+    ctx.save();
+    ctx.fillStyle = "rgba(3,2,6,.25)";
+    ctx.fillRect(0, 0, W, H);
+    ctx.restore();
+  }
+
+  function draw(now) {
+    const t = now / 1000;
+    ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+    ctx.clearRect(0, 0, W, H);
+    ctx.save();
+    if (G.fx.shake > .01) {
+      const amp = G.fx.shake * 7;
+      ctx.translate(Math.sin(t * 83) * amp, Math.cos(t * 61) * amp * .55);
+    }
+
+    drawBackground(t);
+    drawTable(t);
+    drawPlayerGhost(t);
+    drawBaron(t);
+    drawLady(t);
+    drawPot(t);
+    drawHandsAndBoard(t);
+    drawHangingReality(t);
+    drawSpeechBubbles(t);
+    drawLaw(t);
+    drawAmbientLabels(t);
+    drawParticles();
+    drawWhispers(t);
+    drawEndFade(now);
+    drawGlitchOverlay(t);
+    ctx.restore();
+  }
+
+  function updateVisuals(now, dt) {
+    const s = Math.min(dt / 1000, .05);
+    G.fx.shake = Math.max(0, G.fx.shake - s * 4.6);
+    G.fx.glitch = Math.max(0, G.fx.glitch - s * 3.7);
+    G.fx.eye = Math.max(0, G.fx.eye - s * .45);
+    mouse.sx = lerp(mouse.sx, mouse.x, .12);
+    mouse.sy = lerp(mouse.sy, mouse.y, .12);
+    updateParticles(s, now);
+
+    if (G.mode === "playing" && now > nextWhisper) {
+      nextWhisper = now + rand(11000, 20000);
+      const x = chance(.5) ? rand(330, 650) : rand(950, 1270);
+      const y = rand(570, 700);
+      spawnWhisper(choice(WHISPERS), x, y);
+    }
+
+    if (!G.player) return;
+    const prevPot = G.seenPot == null ? G.pot : G.seenPot;
+    if (G.pot > prevPot) {
+      const diff = Math.min(6, G.pot - prevPot);
+      for (let i = 0; i < diff; i++) spawnParticles(800 + rand(-20, 20), 274, "241,198,110", 5, 55);
+    }
+    G.seenPot = G.pot;
+
+    if (G.revealAll && !G.seenReveal) {
+      for (let i = 0; i < 16; i++) spawnParticles(800 + rand(-260, 260), rand(300, 490), "99,246,255", 2, 120);
+      G.seenReveal = true;
+    }
+    if (!G.revealAll) G.seenReveal = false;
+
+    // Курсор в режиме выбора карты.
+    let cursor = "default";
+    if (G.targetMode) cursor = targetFromPoint(mouse.x, mouse.y) ? "pointer" : "crosshair";
+    if (cursor !== curCursor) {
+      canvas.style.cursor = cursor;
+      curCursor = cursor;
+    }
+  }
+
+  function targetFromPoint(x, y) {
+    if (!G.player || !G.targetMode) return null;
+    const ly = handLayout(G.player);
+    for (let i = 0; i < 2; i++) {
+      const l = ly[i];
+      if (l && pointInRect(x, y, l.x, l.y, l.w, l.h, l.r)) return { type: "you", index: i };
+    }
+    const lr = CARD_LAYOUT.reality;
+    if (pointInRect(x, y, lr.x, lr.y, lr.w, lr.h, lr.r)) return { type: "reality" };
+    return null;
+  }
+
+  function pointInRect(px, py, x, y, w, h, rot = 0) {
+    const dx = px - x, dy = py - y;
+    const cs = Math.cos(-rot), sn = Math.sin(-rot);
+    const lx = dx * cs - dy * sn;
+    const ly = dx * sn + dy * cs;
+    return Math.abs(lx) < w / 2 && Math.abs(ly) < h / 2;
+  }
+
+  function frame(now) {
+    const dt = now - lastFrame;
+    lastFrame = now;
+    worldTime = now / 1000;
+    updateVisuals(now, dt);
+    draw(now);
+    requestAnimationFrame(frame);
+  }
+
+  /* ============================================================
+     СОБЫТИЯ И СТАРТ
+     ============================================================ */
+
+  function pointerToCanvas(e) {
+    const r = canvas.getBoundingClientRect();
+    return {
+      x: (e.clientX - r.left) * (W / r.width),
+      y: (e.clientY - r.top) * (H / r.height)
+    };
+  }
+
+  canvas.addEventListener("pointermove", (e) => {
+    const p = pointerToCanvas(e);
+    mouse.x = p.x; mouse.y = p.y; mouse.active = true;
+    if (G.targetMode) {
+      mouse.sx = p.x; mouse.sy = p.y;
+    }
+  });
+  canvas.addEventListener("pointerleave", () => {
+    mouse.active = false;
+  });
+  canvas.addEventListener("pointerdown", (e) => {
+    const p = pointerToCanvas(e);
+    mouse.x = p.x; mouse.y = p.y;
+    if (G.targetMode) {
+      const target = targetFromPoint(p.x, p.y);
+      if (target) resolveCheat(target);
+    }
+  });
+
+  $("startBtn").addEventListener("click", () => {
+    Sound.init();
+    if (Sound.ctx && Sound.ctx.state === "suspended") Sound.ctx.resume();
+    newGame();
+    setTimeout(() => Sound.heartbeat(), 750);
+  });
+  $("restartBtn").addEventListener("click", () => {
+    Sound.init();
+    newGame();
+  });
+  $("cancelTarget").addEventListener("click", cancelCheat);
+
+  document.querySelectorAll("[data-act]").forEach(btn => {
+    btn.addEventListener("click", () => {
+      if (btn.disabled) return;
+      Sound.init();
+      const act = btn.dataset.act;
+      if (act === "check") beginCheck();
+      else if (act === "bet") beginBet();
+      else if (act === "cheat") beginCheat();
+      else if (act === "peek") beginPeek();
+      else if (act === "fold") beginFold();
+      else if (act === "next") {
+        if (G.phase === "roundEnd" && G.mode === "playing") {
+          Sound.click();
+          startRound();
+        }
+      }
+    });
+  });
+
+  $("soundBtn").addEventListener("click", () => {
+    Sound.init();
+    const on = Sound.toggle();
+    $("soundBtn").textContent = on ? "ЗВУК: ВКЛ" : "ЗВУК: ВЫКЛ";
+    if (on) Sound.click();
+  });
+  $("helpBtn").addEventListener("click", () => {
+    $("helpPanel").classList.remove("hidden");
+    Sound.click();
+  });
+  $("closeHelp").addEventListener("click", () => {
+    $("helpPanel").classList.add("hidden");
+    Sound.click();
+  });
+  $("helpPanel").addEventListener("click", (e) => {
+    if (e.target === $("helpPanel")) $("helpPanel").classList.add("hidden");
+  });
+
+  window.addEventListener("keydown", (e) => {
+    if (e.repeat) return;
+    if (e.key === "Escape") {
+      if (!$("helpPanel").classList.contains("hidden")) {
+        $("helpPanel").classList.add("hidden");
+      } else if (G.targetMode) {
+        cancelCheat();
+      }
+      return;
+    }
+    if (!$("helpPanel").classList.contains("hidden")) return;
+    if (G.phase !== "player" || G.busy) return;
+    const k = e.key.toLowerCase();
+    if (k === "c") beginCheck();
+    else if (k === "b") beginBet();
+    else if (k === "m") beginCheat();
+    else if (k === "l" || k === "p") beginPeek();
+    else if (k === "f") beginFold();
+  });
+
+  // Первичная сцена.
+  makePlayers();
+  updateHUD();
+  $("ladyHud").classList.remove("dead");
+  setActionsEnabled(false);
+  setVoice("Стол слышит, как вы читаете правила. Это уже немало.");
+  requestAnimationFrame(frame);
+
+  // Слух никогда не перестаёт слушать. Даже когда вы закрыли вкладку.
+  setInterval(() => {
+    if (G.mode === "playing" && !G.busy && G.phase === "player") {
+      Sound.heartbeat();
+      spawnParticles(800 + rand(-22, 22), 274, "255,61,143", 2, 25);
+    }
+  }, 2350);
+})();
+</script>
+</body>
+</html>
